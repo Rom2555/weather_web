@@ -1,0 +1,61 @@
+body {
+    background-color: #ADD8E6;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.time {
+    font: bold 40px "Lucida Console";
+    color: black;
+    white-space: pre-line;
+}
+
+.day {
+    font: italic 24px Arial;
+    color: darkblue;
+    margin: 10px 0;
+}
+
+#weather-icon {
+    width: 96px;
+    height: 96px;
+    margin: 10px;
+}
+
+.weather-info {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    font-size: 18px;
+}
+
+.item img {
+    width: 36px;
+    height: 36px;
+    margin-right: 10px;
+}
+
+.label {
+    color: black;
+    min-width: 150px;
+}
+
+.value {
+    font-weight: bold;
+}

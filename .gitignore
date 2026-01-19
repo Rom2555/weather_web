@@ -1,0 +1,28 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Виртуальные окружения
+venv/
+.venv/
+
+.env
+*.env
+.env.*
+
+# PyCharm
+.idea/
+*.iml
+
+# Дистрибутивы и сборка
+dist/
+build/
+*.egg-info/
+
+# Временные файлы
+*.log
+*.tmp
+*.swp
+*~

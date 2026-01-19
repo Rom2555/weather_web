@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Часы + Погода</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Время -->
+        <div class="time" id="time">00:00:00<br>00-00-0000</div>
+        <div class="day" id="day">Понедельник</div>
+
+        <!-- Иконка погоды -->
+        <img id="weather-icon" src="{{ url_for('static', filename='icons/animated/01d.gif') }}" alt="Погода">
+
+        <!-- Данные о погоде -->
+        <div class="weather-info">
+            <div class="item">
+                <img src="{{ url_for('static', filename='icons/city.png') }}" alt="Город">
+                <span class="label">Город:</span>
+                <span class="value" id="city">---</span>
+            </div>
+            <div class="item">
+                <img src="{{ url_for('static', filename='icons/thermometer.png') }}" alt="Темп.">
+                <span class="label">Температура:</span>
+                <span class="value" id="temp">---</span>
+            </div>
+            <div class="item">
+                <img src="{{ url_for('static', filename='icons/mindset.png') }}" alt="Ощущ.">
+                <span class="label">Ощущается как:</span>
+                <span class="value" id="feels_like">---</span>
+            </div>
+            <div class="item">
+                <img src="{{ url_for('static', filename='icons/humidity.png') }}" alt="Влажн.">
+                <span class="label">Влажность:</span>
+                <span class="value" id="humidity">---</span>
+            </div>
+            <div class="item">
+                <img src="{{ url_for('static', filename='icons/resilience.png') }}" alt="Давл.">
+                <span class="label">Давление:</span>
+                <span class="value" id="pressure">---</span>
+            </div>
+            <div class="item">
+                <img src="{{ url_for('static', filename='icons/windy.png') }}" alt="Ветер">
+                <span class="label">Ветер:</span>
+                <span class="value" id="wind">---</span>
+            </div>
+            <div class="item">
+                <img src="{{ url_for('static', filename='icons/sunrise.png') }}" alt="Восход">
+                <span class="label">Восход:</span>
+                <span class="value" id="sunrise">---</span>
+            </div>
+            <div class="item">
+                <img src="{{ url_for('static', filename='icons/sunset.png') }}" alt="Закат">
+                <span class="label">Закат:</span>
+                <span class="value" id="sunset">---</span>
+            </div>
+            <div class="item">
+                <img src="{{ url_for('static', filename='icons/weather_desc.png') }}" alt="Сейчас">
+                <span class="label">Сейчас:</span>
+                <span class="value" id="desc">---</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Обновление времени
+        function updateTime() {
+            const now = new Date();
+            const days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
+            document.getElementById('time').textContent =
+                now.toLocaleTimeString('ru-RU') + '\n' + now.toLocaleDateString('ru-RU');
+            document.getElementById('day').textContent = days[now.getDay()];
+        }
+
+        // Получение погоды
+        function updateWeather() {
+            fetch('/api/weather')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) return;
+                    document.getElementById('city').textContent = data.city;
+                    document.getElementById('temp').textContent = data.temp + ' °C';
+                    document.getElementById('feels_like').textContent = data.feels_like + ' °C';
+                    document.getElementById('humidity').textContent = data.humidity + '%';
+                    document.getElementById('pressure').textContent = data.pressure + ' мм рт. ст.';
+                    document.getElementById('wind').textContent = data.wind;
+                    document.getElementById('sunrise').textContent = data.sunrise;
+                    document.getElementById('sunset').textContent = data.sunset;
+                    document.getElementById('desc').textContent = data.desc;
+                    document.getElementById('weather-icon').src = `/static/icons/animated/${data.icon}.gif`;
+                })
+                .catch(() => console.error("Ошибка загрузки погоды"));
+        }
+
+        // Запуск при загрузке
+        setInterval(updateTime, 1000);
+        setInterval(updateWeather, 900000); // каждые 15 минут
+        updateTime();
+        updateWeather();
+    </script>
+</body>
+</html>

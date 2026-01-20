@@ -74,7 +74,9 @@ def open_browser():
 
 
 if __name__ == '__main__':
-    # Открываем браузер только в основном процессе (не в reloader)
+    # import logging
+    # logging.getLogger('werkzeug').setLevel(logging.ERROR)  # скрывает access-логи
+
     if os.environ.get('WERKZEUG_RUN_MAIN') is None:
         Timer(1, open_browser).start()
     app.run(host='0.0.0.0', port=5000, debug=False)

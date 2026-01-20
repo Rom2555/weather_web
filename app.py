@@ -77,6 +77,8 @@ if __name__ == '__main__':
     # import logging
     # logging.getLogger('werkzeug').setLevel(logging.ERROR)  # скрывает access-логи
 
-    if os.environ.get('WERKZEUG_RUN_MAIN') is None:
+    # Открываем браузер ТОЛЬКО если НЕ в Docker
+    if os.environ.get('WERKZEUG_RUN_MAIN') is None and os.environ.get('RUN_IN_DOCKER') != '1':
         Timer(1, open_browser).start()
+
     app.run(host='0.0.0.0', port=5000, debug=False)

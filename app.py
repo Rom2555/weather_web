@@ -13,9 +13,8 @@ URL = 'https://api.openweathermap.org/data/2.5/weather'
 LAT = 55.9177
 LON = 37.7274
 
-# Часовой пояс UTC+3 (Москва, Калининград и т.д.)
+# Часовой пояс UTC+3 (Москва)
 TZ_OFFSET = timezone(timedelta(hours=3))
-
 
 # --- Направление ветра ---
 def get_wind_direction(deg):
@@ -23,12 +22,10 @@ def get_wind_direction(deg):
                   'Юг', 'Юго-запад', 'Запад', 'Северо-запад']
     return directions[round(deg / 45) % 8]
 
-
 # --- Маршрут: главная страница ---
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 # --- API: получение погоды ---
 @app.route('/api/weather')
@@ -75,14 +72,22 @@ def weather_api():
         print("Ошибка:", e)
         return jsonify({"error": "Не удалось получить данные"}), 500
 
-
 # Функция для автоматического открытия браузера
 def open_browser():
     webbrowser.open_new('http://127.0.0.1:5000')
 
-
 if __name__ == '__main__':
-    if os.environ.get('WERKZEUG_RUN_MAIN') is None and os.environ.get('RUN_IN_DOCKER') != '1':
-        Timer(1, open_browser).start()
+    # Явно удаляем FLASK_APP из окружения, чтобы избежать reloader
+    os.environ.pop('FLASK_APP', None)
+    print("✅ Сервер запущен. PID:", os.getpid())
 
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    # Просто запускаем браузер один раз — без проверки WERKZEUG_RUN_MAIN
+    # Потому что use_reloader=False → только один процесс
+    Timer(1, open_browser).start()
+
+    app.run(
+        host='0.0.0.0',
+        port=5000,
+        debug=False,
+        use_reloader=False  # гарантируем один процесс
+    )

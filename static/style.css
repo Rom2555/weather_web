@@ -384,3 +384,22 @@ body {
     .date-day { gap: 30px; font-size: 1.4rem; }
     #weather-icon { width: 130px; height: 130px; }
 }
+
+/* Индикатор обновления */
+.last-updated {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.night .last-updated {
+    color: #999;
+}
+
+.container:hover .last-updated {
+    opacity: 0.9;
+}

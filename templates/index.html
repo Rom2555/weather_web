@@ -6,6 +6,13 @@
     <title>Часы + Погода</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .container {
+            position: static;
+            transform: none;
+            cursor: auto;
+        }
+    </style>
 </head>
 <body>
     <!-- Анимация загрузки -->
@@ -73,6 +80,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Индикатор обновления -->
+            <div class="last-updated" id="last-updated">Обновлено: --:--:--</div>
         </div>
     </div>
 
@@ -105,7 +115,7 @@
         // --- 3. Переключение темы (ночь/день) ---
         function updateTheme() {
             const hour = new Date().getHours();
-            if (hour < 7 || hour > 21) {
+            if (hour >= 20 || hour < 7) {
                 document.body.classList.add('night');
             } else {
                 document.body.classList.remove('night');
@@ -117,10 +127,16 @@
             const weatherSection = document.getElementById('weather-section');
             weatherSection.classList.add('updating');
 
+            // Время запроса (до fetch)
+            const requestTime = new Date();
+
             fetch('/api/weather')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.error) return;
+                    if (data.error) {
+                        console.warn("API вернул ошибку:", data.error);
+                        return;
+                    }
 
                     document.getElementById('city').textContent = data.city;
                     document.getElementById('temp').textContent = `${Math.round(data.temp)}°C`;
@@ -133,6 +149,10 @@
                     document.getElementById('desc').textContent = data.desc;
                     document.getElementById('weather-icon').src = `/static/icons/animated/${data.icon}.gif`;
 
+                    // ✅ Обновляем время ПОСЛЕ успешного обновления
+                    document.getElementById('last-updated').textContent =
+                        `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`;
+
                     // Анимация обновления
                     weatherSection.classList.remove('updating');
                     weatherSection.classList.add('updated');
@@ -143,6 +163,12 @@
                 .catch(err => {
                     console.error("Ошибка загрузки погоды:", err);
                     document.getElementById('city').textContent = 'Ошибка';
+
+                    // ✅ Даже при ошибке — показываем, что был запрос
+                    document.getElementById('last-updated').textContent =
+                        `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`;
+                })
+                .finally(() => {
                     weatherSection.classList.remove('updating');
                 });
         }

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify
 import requests
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import webbrowser
 from threading import Timer
 import os
@@ -12,6 +12,9 @@ API_KEY = 'efd12ce859284731dc0b5dded9513bae'
 URL = 'https://api.openweathermap.org/data/2.5/weather'
 LAT = 55.9177
 LON = 37.7274
+
+# Часовой пояс UTC+3 (Москва, Калининград и т.д.)
+TZ_OFFSET = timezone(timedelta(hours=3))
 
 
 # --- Направление ветра ---
@@ -48,8 +51,13 @@ def weather_api():
         pressure_mmhg = round(response['main']['pressure'] * 0.75)
         wind_speed = response['wind']['speed']
         wind_dir = get_wind_direction(response['wind']['deg'])
-        sunrise = datetime.fromtimestamp(response['sys']['sunrise']).strftime('%H:%M')
-        sunset = datetime.fromtimestamp(response['sys']['sunset']).strftime('%H:%M')
+
+        # Конвертируем Unix timestamp в UTC+3
+        sunrise_utc = datetime.fromtimestamp(response['sys']['sunrise'], tz=timezone.utc)
+        sunset_utc = datetime.fromtimestamp(response['sys']['sunset'], tz=timezone.utc)
+
+        sunrise_local = sunrise_utc.astimezone(TZ_OFFSET).strftime('%H:%M')
+        sunset_local = sunset_utc.astimezone(TZ_OFFSET).strftime('%H:%M')
 
         return jsonify({
             "city": city,
@@ -60,8 +68,8 @@ def weather_api():
             "humidity": humidity,
             "pressure": pressure_mmhg,
             "wind": f"{wind_speed} м/с, {wind_dir}",
-            "sunrise": sunrise,
-            "sunset": sunset
+            "sunrise": sunrise_local,
+            "sunset": sunset_local
         })
     except Exception as e:
         print("Ошибка:", e)
@@ -74,10 +82,6 @@ def open_browser():
 
 
 if __name__ == '__main__':
-    # import logging
-    # logging.getLogger('werkzeug').setLevel(logging.ERROR)  # скрывает access-логи
-
-    # Открываем браузер ТОЛЬКО если НЕ в Docker
     if os.environ.get('WERKZEUG_RUN_MAIN') is None and os.environ.get('RUN_IN_DOCKER') != '1':
         Timer(1, open_browser).start()
 

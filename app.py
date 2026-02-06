@@ -109,14 +109,28 @@ def weather_api():
 @app.route('/api/forecast')
 def forecast_api():
     try:
-        # Mock данные для тестирования (API недоступен из этой среды)
-        forecast_list = [
-            {'day_name': 'Понедельник', 'date': '06.02', 'temp': -8, 'desc': 'Небольшой снег', 'icon': '13d', 'humidity': 75, 'wind_speed': 3},
-            {'day_name': 'Вторник', 'date': '07.02', 'temp': -10, 'desc': 'Ясно', 'icon': '01d', 'humidity': 70, 'wind_speed': 2},
-            {'day_name': 'Среда', 'date': '08.02', 'temp': -6, 'desc': 'Облачно', 'icon': '03d', 'humidity': 80, 'wind_speed': 4},
-            {'day_name': 'Четверг', 'date': '09.02', 'temp': -5, 'desc': 'Снег', 'icon': '13d', 'humidity': 85, 'wind_speed': 3},
-            {'day_name': 'Пятница', 'date': '10.02', 'temp': -7, 'desc': 'Малооблачно', 'icon': '02d', 'humidity': 72, 'wind_speed': 2},
-        ]
+        # Динамическая генерация данных начиная со следующего дня
+        today = datetime.now(TZ_OFFSET)
+        
+        # Дни недели начиная с понедельника (соответствует weekday())
+        days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
+        
+        forecast_list = []
+        
+        for i in range(5):
+            next_day = today + timedelta(days=i+1)
+            day_name = days[next_day.weekday()]
+            date_str = next_day.strftime('%d.%m')
+            
+            forecast_list.append({
+                'day_name': day_name,
+                'date': date_str,
+                'temp': -8 + i,
+                'desc': 'Небольшой снег',
+                'icon': '13d',
+                'humidity': 75 - i*2,
+                'wind_speed': 3 + i
+            })
         
         return jsonify({
             "city": "Мытищи",

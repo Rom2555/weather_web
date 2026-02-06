@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ещает<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -81,7 +81,7 @@
         function updateForecast() {
             const requestTime = new Date();
 
-            fetch('/api/forecast')
+            fetch('/api/forecast?t=' + new Date().getTime())
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {

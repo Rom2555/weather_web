@@ -18,8 +18,8 @@ app = Flask(__name__)
 URL = "https://api.openweathermap.org/data/2.5/weather"
 URL_FORECAST = "https://api.openweathermap.org/data/2.5/forecast"
 API_KEY = os.environ.get('API_KEY', 'your_api_key_here')
-LAT = float(os.environ.get('LAT', '55.917460'))
-LON = float(os.environ.get('LON', '37.727200'))
+LAT = float(os.environ.get('LAT'))
+LON = float(os.environ.get('LON'))
 
 # Часовой пояс UTC+3 (Москва)
 TZ_OFFSET = timezone(timedelta(hours=3))

@@ -50,14 +50,9 @@ venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 ```
 
-4. Создайте файл `.env` с вашими настройками:
+4. Создайте файл `.env` из `.env.example`:
 ```bash
-# OpenWeatherMap API Key (получите на https://openweathermap.org/api)
-API_KEY=your_api_key_here
-
-# Координаты вашего города
-LAT=55.917460
-LON=37.727200
+cp .env.example .env
 ```
 
 5. Запустите приложение:
@@ -72,10 +67,9 @@ python app.py
 Приложение также можно запустить в Docker:
 
 ```bash
-# Создайте файл .env с API ключом
-echo "API_KEY=your_key" > .env
-echo "LAT=55.917460" >> .env
-echo "LON=37.727200" >> .env
+# Скопируйте .env.example в .env
+cp .env.example .env
+# Отредактируйте .env с вашими настройками
 
 docker build -t weather_web .
 docker run --env-file .env -p 5000:5000 weather_web
@@ -86,6 +80,7 @@ docker run --env-file .env -p 5000:5000 weather_web
 ```
 weather_web/
 ├── app.py              # Flask приложение
+├── .env.example        # Пример настроек (скопируйте в .env)
 ├── .env                # Настройки (API ключ, координаты) - НЕ ЗАГРУЖАТЬ В GIT!
 ├── .gitignore          # Исключает .env и venv/
 ├── requirements.txt    # Зависимости Python
@@ -101,16 +96,13 @@ weather_web/
 
 ## ⚙️ Настройки
 
-Создайте файл `.env` в корне проекта:
+Скопируйте `.env.example` в `.env` и заполните его:
 
-```env
-# OpenWeatherMap API Key
-API_KEY=your_api_key_here
-
-# Широта и долгота вашего города
-LAT=55.917460
-LON=37.727200
+```bash
+cp .env.example .env
 ```
+
+Затем откройте `.env` и вставьте ваш API ключ и координаты.
 
 **Где получить API ключ:**
 1. Зарегистрируйтесь на https://openweathermap.org/

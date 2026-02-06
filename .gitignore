@@ -9,8 +9,6 @@ venv/
 .venv/
 
 .env
-*.env
-.env.*
 
 # PyCharm
 .idea/

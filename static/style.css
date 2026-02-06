@@ -4,7 +4,7 @@
     --bg-primary: #f0f5ff;
     --bg-card: #ffffff;
     --text-primary: #2c3e50;
-    --text-secondary: #383e3e;
+    --text-secondary: #7f8c8d;
     --accent: #3498db;
     --shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     --border-radius: 20px;
@@ -12,7 +12,6 @@
     --loader-color: #3498db;
 }
 
-/* Тёмная тема */
 .night {
     --bg-primary: #121212;
     --bg-card: #1e1e1e;
@@ -27,7 +26,6 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    scroll-behavior: smooth;
 }
 
 body {
@@ -39,13 +37,13 @@ body {
     align-items: center;
     justify-content: center;
     padding: 40px;
-    transition: background 1s ease;
+    transition: background 1.5s ease;
     overflow: hidden;
-    cursor: auto;
 }
 
+/* НОЧНАЯ ТЕМА — ДОЛЖНА БЫТЬ ПОСЛЕ обычного body */
 .night body {
-    background: linear-gradient(90deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    background: linear-gradient(0deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
 }
 
 .container {
@@ -60,6 +58,7 @@ body {
     transition: var(--transition);
     opacity: 1;
     transform: translateY(0);
+    margin-left: 200px;
 }
 
 .clock-section {
@@ -233,12 +232,14 @@ body {
 /* Индивидуальные классы для иконок — чтобы не было синего цвета */
 .icon-sunrise {
     filter: brightness(1.2) sepia(0.2) hue-rotate(-15deg) !important;
-    animation: glow 2s ease-in-out infinite alternate;
+    animation: pulse 2s ease-in-out infinite;
+    animation-delay: -0.7s;
 }
 
 .icon-sunset {
     filter: brightness(1.2) sepia(0.4) hue-rotate(-20deg) !important;
-    animation: glow 2s ease-in-out infinite alternate-reverse;
+    animation: pulse 2s ease-in-out infinite;
+    animation-delay: -1.3s;
 }
 
 .icon-wind {
@@ -247,6 +248,11 @@ body {
 
 .icon-humidity {
     animation: pulse 2s ease-in-out infinite;
+}
+
+.icon-feels {
+    animation: pulse 2s ease-in-out infinite;
+    animation-delay: -0.3s;
 }
 
 .icon-pressure {
@@ -402,4 +408,285 @@ body {
 
 .container:hover .last-updated {
     opacity: 0.9;
+}
+
+/* --- Навигация --- */
+.nav-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+    position: fixed;
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.nav-btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.nav-btn.active {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}
+
+.night .nav-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.night .nav-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.night .nav-btn.active {
+    background: var(--accent);
+    color: white;
+}
+
+/* --- Прогноз на неделю --- */
+.forecast-container {
+    padding: 30px;
+}
+
+.forecast-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: var(--text-primary);
+}
+
+.forecast-grid {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) rgba(0, 0, 0, 0.1);
+}
+
+.forecast-grid::-webkit-scrollbar {
+    height: 6px;
+}
+
+.forecast-grid::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+.forecast-grid::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
+}
+
+.forecast-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+    min-width: 160px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.forecast-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.night .forecast-card {
+    background: #2d2d2d;
+}
+
+.night .forecast-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.forecast-day {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 3px;
+}
+
+.forecast-date {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.forecast-icon {
+    width: 60px;
+    height: 60px;
+    margin: 8px auto;
+    animation: float 3s ease-in-out infinite;
+}
+
+.forecast-temp {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 8px 0;
+}
+
+.forecast-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-style: italic;
+    line-height: 1.2;
+}
+
+.forecast-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 0.75rem;
+}
+
+.forecast-details .detail-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    color: var(--text-secondary);
+}
+
+.forecast-details .detail-item img {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+}
+
+.forecast-loading {
+    text-align: center;
+    padding: 50px;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+
+/* Адаптивность прогноза */
+@media (max-width: 1400px) {
+    .forecast-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+    
+    .forecast-card {
+        padding: 12px 8px;
+    }
+    
+    .forecast-day {
+        font-size: 0.9rem;
+    }
+    
+    .forecast-date {
+        font-size: 0.75rem;
+    }
+    
+    .forecast-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .forecast-temp {
+        font-size: 1.3rem;
+    }
+    
+    .forecast-desc {
+        font-size: 0.75rem;
+    }
+    
+    .forecast-details {
+        font-size: 0.7rem;
+    }
+    
+    .forecast-details .detail-item img {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .forecast-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .forecast-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .forecast-container {
+        padding: 20px;
+    }
+    
+    .forecast-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .forecast-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .forecast-card {
+        padding: 10px 8px;
+    }
+    
+    .forecast-day {
+        font-size: 0.85rem;
+    }
+    
+    .forecast-date {
+        font-size: 0.7rem;
+    }
+    
+    .forecast-icon {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .forecast-temp {
+        font-size: 1.2rem;
+    }
+    
+    .forecast-desc {
+        font-size: 0.7rem;
+        margin-bottom: 8px;
+    }
+    
+    .forecast-details {
+        font-size: 0.65rem;
+    }
+    
+    .forecast-details .detail-item img {
+        width: 12px;
+        height: 12px;
+    }
 }

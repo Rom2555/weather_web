@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прогноз погоды на 5 дней</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .container {
+            position: static;
+            transform: none;
+            cursor: auto;
+        }
+        body {
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <div class="nav-tabs">
+        <a href="/" class="nav-btn" id="nav-home">Погода сейчас</a>
+        <a href="/forecast" class="nav-btn active" id="nav-forecast">Прогноз на неделю</a>
+    </div>
+
+    <!-- Анимация загрузки -->
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <div class="loader-title">Загрузка прогноза...</div>
+            <div class="loader-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="container" id="container">
+        <div class="forecast-container">
+            <h2 class="forecast-title" id="city">Прогноз на 5 дней</h2>
+            
+            <div class="forecast-grid" id="forecast-grid">
+                <!-- Прогноз будет загружен сюда -->
+            </div>
+            
+            <div class="forecast-loading" id="loading-text">
+                Загрузка данных о прогнозе...
+            </div>
+
+            <!-- Индикатор обновления -->
+            <div class="last-updated" id="last-updated">Обновлено: --:--:--</div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Скрытие лоадера ---
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loader').style.display = 'none';
+                }, 500);
+            }, 800);
+
+            document.getElementById('container').classList.add('fade-in');
+        });
+
+        // --- 2. Переключение темы (ночь/день) ---
+        function updateTheme() {
+            const hour = new Date().getHours();
+            if (hour >= 20 || hour < 7) {
+                document.body.classList.add('night');
+            } else {
+                document.body.classList.remove('night');
+            }
+        }
+
+        // --- 3. Обновление прогноза ---
+        function updateForecast() {
+            const requestTime = new Date();
+
+            fetch('/api/forecast')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.warn("API вернул ошибку:", data.error);
+                        return;
+                    }
+
+                document.getElementById('city').textContent = `Прогноз на 5 дней — ${data.city}`;
+                    
+                    const grid = document.getElementById('forecast-grid');
+                    const loadingText = document.getElementById('loading-text');
+                    
+                    grid.innerHTML = '';
+                    loadingText.style.display = 'none';
+
+                    data.forecast.forEach(day => {
+                        const card = document.createElement('div');
+                        card.className = 'forecast-card';
+                        card.innerHTML = `
+                            <div class="forecast-day">${day.day_name}</div>
+                            <div class="forecast-date">${day.date}</div>
+                            <img class="forecast-icon" src="/static/icons/animated/${day.icon}.gif" alt="${day.desc}">
+                            <div class="forecast-temp">${day.temp}°C</div>
+                            <div class="forecast-desc">${day.desc}</div>
+                            <div class="forecast-details">
+                                <div class="detail-item">
+                                    <img src="/static/icons/humidity.png" alt="Влажность">
+                                    <span>${day.humidity}%</span>
+                                </div>
+                                <div class="detail-item">
+                                    <img src="/static/icons/windy.png" alt="Ветер">
+                                    <span>${day.wind_speed} м/с</span>
+                                </div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+
+                    document.getElementById('last-updated').textContent =
+                        `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`;
+                })
+                .catch(err => {
+                    console.error("Ошибка загрузки прогноза:", err);
+                    document.getElementById('loading-text').textContent = 'Ошибка загрузки прогноза';
+                });
+        }
+
+        // --- Запуск ---
+        setInterval(updateTheme, 60000);
+        setInterval(updateForecast, 900000);
+
+        updateTheme();
+        updateForecast();
+    </script>
+</body>
+</html>

@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Часы + Погода</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Подключаем шрифт ДО CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .container {
             position: static;
@@ -15,6 +16,12 @@
     </style>
 </head>
 <body>
+    <!-- Навигация -->
+    <div class="nav-tabs">
+        <a href="/" class="nav-btn active" id="nav-home">Погода сейчас</a>
+        <a href="/forecast" class="nav-btn" id="nav-forecast">Прогноз на неделю</a>
+    </div>
+
     <!-- Анимация загрузки -->
     <div class="loader" id="loader">
         <div class="loader-content">
@@ -49,7 +56,7 @@
 
                 <div class="info-grid">
                     <div class="item">
-                        <img src="{{ url_for('static', filename='icons/mindset.png') }}" alt="Ощущается">
+                        <img src="{{ url_for('static', filename='icons/mindset.png') }}" alt="Ощущается" class="icon-feels">
                         <span>Ощущается:</span>
                         <strong id="feels_like">--°C</strong>
                     </div>
@@ -69,12 +76,12 @@
                         <strong id="wind">-- м/с</strong>
                     </div>
                     <div class="item">
-                        <img src="{{ url_for('static', filename='icons/sunrise.png') }}" alt="Восход" class="icon-sunrise">
+                        <img src="{{ url_for('static', filename='icons/animated/sunrise.gif') }}" alt="Восход" class="icon-sunrise">
                         <span>Восход:</span>
                         <strong id="sunrise">--:--</strong>
                     </div>
                     <div class="item">
-                        <img src="{{ url_for('static', filename='icons/sunset.png') }}" alt="Закат" class="icon-sunset">
+                        <img src="{{ url_for('static', filename='icons/animated/sunset.gif') }}" alt="Закат" class="icon-sunset">
                         <span>Закат:</span>
                         <strong id="sunset">--:--</strong>
                     </div>
@@ -112,10 +119,10 @@
             document.getElementById('day').textContent = days[now.getDay()];
         }
 
-        // --- 3. Переключение темы (ночь/день) ---
+        // --- 3. Переключение темы (ночь/день) — ИСПРАВЛЕНО ---
         function updateTheme() {
             const hour = new Date().getHours();
-            if (hour >= 20 || hour < 7) {
+            if (hour >= 20 || hour < 7) {  // Ночь: с 20:00 до 07:00
                 document.body.classList.add('night');
             } else {
                 document.body.classList.remove('night');
@@ -149,7 +156,7 @@
                     document.getElementById('desc').textContent = data.desc;
                     document.getElementById('weather-icon').src = `/static/icons/animated/${data.icon}.gif`;
 
-                    // ✅ Обновляем время ПОСЛЕ успешного обновления
+                    // Обновляем время
                     document.getElementById('last-updated').textContent =
                         `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`;
 
@@ -164,7 +171,6 @@
                     console.error("Ошибка загрузки погоды:", err);
                     document.getElementById('city').textContent = 'Ошибка';
 
-                    // ✅ Даже при ошибке — показываем, что был запрос
                     document.getElementById('last-updated').textContent =
                         `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`;
                 })

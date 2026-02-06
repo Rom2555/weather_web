@@ -122,7 +122,7 @@
         // --- 3. Переключение темы (ночь/день) — ИСПРАВЛЕНО ---
         function updateTheme() {
             const hour = new Date().getHours();
-            if (hour >= 20 || hour < 7) {  // Ночь: с 20:00 до 07:00
+            if (hour >= 20 || hour < 6) {
                 document.body.classList.add('night');
             } else {
                 document.body.classList.remove('night');

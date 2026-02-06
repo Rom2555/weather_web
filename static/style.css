@@ -507,7 +507,6 @@ body.night {
     padding: 20px 15px;
     text-align: center;
     transition: all 0.3s ease;
-    min-width: 0;
     flex: 1;
     display: flex;
     flex-direction: column;

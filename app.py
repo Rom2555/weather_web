@@ -6,16 +6,20 @@ from datetime import datetime, timezone, timedelta
 import webbrowser
 from threading import Timer
 import os
+from dotenv import load_dotenv
+
+# Загружаем переменные окружения из .env
+load_dotenv()
 
 app = Flask(__name__)
 
-# --- Настройки ---
+# --- Настройки из переменных окружения ---
 # OpenWeatherMap API
 URL = "https://api.openweathermap.org/data/2.5/weather"
 URL_FORECAST = "https://api.openweathermap.org/data/2.5/forecast"
-API_KEY = 'efd12ce859284731dc0b5dded9513bae'
-LAT = 55.917460
-LON = 37.727200
+API_KEY = os.environ.get('API_KEY', 'your_api_key_here')
+LAT = float(os.environ.get('LAT', '55.917460'))
+LON = float(os.environ.get('LON', '37.727200'))
 
 # Часовой пояс UTC+3 (Москва)
 TZ_OFFSET = timezone(timedelta(hours=3))

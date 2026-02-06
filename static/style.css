@@ -43,7 +43,7 @@ body {
 
 /* НОЧНАЯ ТЕМА — ДОЛЖНА БЫТЬ ПОСЛЕ обычного body */
 .night body {
-    background: linear-gradient(0deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    background: linear-gradient(0deg, #050505 0%, #0a0a0a 50%, #0d0d0d 100%);
 }
 
 .container {
@@ -70,7 +70,7 @@ body {
 }
 
 .night .clock-section {
-    background: linear-gradient(120deg, #1a2a4a, #223b6a);
+    background: linear-gradient(120deg, #0a0a1a, #0f1025);
 }
 
 .time {
@@ -176,7 +176,7 @@ body {
 }
 
 .night .item {
-    background: #2d2d2d;
+    background: #1a1a1a;
 }
 
 .item::before {
@@ -205,7 +205,7 @@ body {
 }
 
 .night .item:hover {
-    background: #3a3a3a;
+    background: #252525;
 }
 
 /* --- Естественные иконки без фильтров --- */
@@ -515,7 +515,7 @@ body {
 }
 
 .night .forecast-card {
-    background: #2d2d2d;
+    background: #1a1a1a;
 }
 
 .night .forecast-card:hover {

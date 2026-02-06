@@ -42,8 +42,10 @@ body {
 }
 
 /* НОЧНАЯ ТЕМА — ДОЛЖНА БЫТЬ ПОСЛЕ обычного body */
-.night body {
+body.night {
     background: linear-gradient(0deg, #050505 0%, #0a0a0a 50%, #0d0d0d 100%) !important;
+    min-height: 100vh !important;
+    width: 100% !important;
 }
 
 .container {

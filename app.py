@@ -88,6 +88,13 @@ def weather_api():
         main = response.get('main', {})
         wind = response.get('wind', {})
         weather = response.get('weather', [{}])[0]
+        sys = response.get('sys', {})
+        
+        # Конвертируем timestamps рассвета и заката в локальное время (UTC+3)
+        sunrise_ts = sys.get('sunrise', 0)
+        sunset_ts = sys.get('sunset', 0)
+        sunrise_time = datetime.fromtimestamp(sunrise_ts, tz=TZ_OFFSET).strftime('%H:%M')
+        sunset_time = datetime.fromtimestamp(sunset_ts, tz=TZ_OFFSET).strftime('%H:%M')
         
         return jsonify({
             "city": "Мытищи",
@@ -97,9 +104,9 @@ def weather_api():
             "feels_like": round(main.get('feels_like', 0)),
             "humidity": main.get('humidity', 0),
             "pressure": round(main.get('pressure', 1013) * 0.75),
-            "wind": f"{round(wind.get('speed', 0))} м/с",
-            "sunrise": "06:00",
-            "sunset": "20:00"
+            "wind": f"{round(wind.get('speed', 0))} м/с, {get_wind_direction(wind.get('deg', 0))}",
+            "sunrise": sunrise_time,
+            "sunset": sunset_time
         })
     except Exception as e:
         print("Ошибка weather_api:", e)
@@ -109,28 +116,57 @@ def weather_api():
 @app.route('/api/forecast')
 def forecast_api():
     try:
-        # Динамическая генерация данных начиная со следующего дня
-        today = datetime.now(TZ_OFFSET)
+        params = urllib.parse.urlencode({
+            'lat': LAT,
+            'lon': LON,
+            'appid': API_KEY,
+            'units': 'metric',
+            'lang': 'ru'
+        })
+        response = json.loads(urllib.request.urlopen(f"{URL_FORECAST}?{params}").read().decode())
         
-        # Дни недели начиная с понедельника (соответствует weekday())
+        if response.get('cod') != '200':
+            return jsonify({"error": response.get('message', 'Ошибка получения данных')}), 500
+        
+        # Получаем текущую дату в часовом поясе UTC+3
+        today = datetime.now(TZ_OFFSET).date()
+        tomorrow = today + timedelta(days=1)
+        
+        # Дни недели
         days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
         
-        forecast_list = []
+        # Сортируем по времени
+        forecast_items = sorted(response.get('list', []), key=lambda x: x.get('dt', 0))
         
-        for i in range(5):
-            next_day = today + timedelta(days=i+1)
-            day_name = days[next_day.weekday()]
-            date_str = next_day.strftime('%d.%m')
+        # Группируем данные по дням (берем первую выборку на каждый день)
+        days_data = {}
+        for item in forecast_items:
+            dt = item.get('dt', 0)
+            dt_local = datetime.fromtimestamp(dt, tz=TZ_OFFSET)
+            day_date = dt_local.date()
             
-            forecast_list.append({
-                'day_name': day_name,
-                'date': date_str,
-                'temp': -8 + i,
-                'desc': 'Небольшой снег',
-                'icon': '13d',
-                'humidity': 75 - i*2,
-                'wind_speed': 3 + i
-            })
+            # Пропускаем сегодняшний день
+            if day_date <= today:
+                continue
+            
+            day_key = day_date.strftime('%Y-%m-%d')
+            
+            if day_key not in days_data:
+                weather = item.get('weather', [{}])[0]
+                main = item.get('main', {})
+                wind = item.get('wind', {})
+                
+                days_data[day_key] = {
+                    'day_name': days[dt_local.weekday()],
+                    'date': dt_local.strftime('%d.%m'),
+                    'temp': round(main.get('temp', 0)),
+                    'desc': OWM_TO_DESC.get(weather.get('id', 800), weather.get('description', 'Ясно')),
+                    'icon': weather.get('icon', '01d'),
+                    'humidity': main.get('humidity', 0),
+                    'wind_speed': f"{round(wind.get('speed', 0))} м/с, {get_wind_direction(wind.get('deg', 0))}"
+                }
+        
+        forecast_list = list(days_data.values())[:5]
         
         return jsonify({
             "city": "Мытищи",

@@ -6,7 +6,7 @@
     <title>Часы + Погода</title>
     <!-- Подключаем шрифт ДО CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ version }}">
     <style>
         .container {
             position: static;
@@ -94,6 +94,24 @@
     </div>
 
     <script>
+        // --- 0. Проверка обновлений и автообновление ---
+        let currentVersion = "{{ version }}";
+        
+        function checkForUpdates() {
+            fetch('/api/version')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.version !== currentVersion) {
+                        console.log("Новая версия обнаружена: " + data.version + " (текущая: " + currentVersion + ")");
+                        location.reload(true);
+                    }
+                })
+                .catch(err => console.warn("Не удалось проверить обновления:", err));
+        }
+        
+        // Проверяем обновления каждые 30 секунд
+        setInterval(checkForUpdates, 30000);
+
         // --- 1. Скрытие лоадера ---
         window.addEventListener('load', () => {
             setTimeout(() => {

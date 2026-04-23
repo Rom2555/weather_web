@@ -6,12 +6,23 @@ from datetime import datetime, timezone, timedelta
 import webbrowser
 from threading import Timer
 import os
+import subprocess
 from dotenv import load_dotenv
+
+# Получаем хеш коммита для версии
+def get_git_commit():
+    try:
+        return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
+    except:
+        return 'unknown'
 
 # Загружаем переменные окружения из .env
 load_dotenv()
 
 app = Flask(__name__)
+
+# Версия для cache busting
+VERSION = get_git_commit()
 
 # --- Настройки из переменных окружения ---
 # OpenWeatherMap API
@@ -59,15 +70,20 @@ def get_day_name(dt):
     date = datetime.fromtimestamp(dt, tz=timezone.utc)
     return days[date.weekday()]
 
+# --- API: получение версии ---
+@app.route('/api/version')
+def version_api():
+    return jsonify({"version": VERSION})
+
 # --- Маршрут: главная страница ---
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', version=VERSION)
 
 # --- Маршрут: страница прогноза на неделю ---
 @app.route('/forecast')
 def forecast():
-    return render_template('forecast.html', page='forecast')
+    return render_template('forecast.html', page='forecast', version=VERSION)
 
 # --- API: получение погоды (текущей) ---
 @app.route('/api/weather')

@@ -1,0 +1,41 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Deploy to server
+      env:
+        HOST: ${{ secrets.SERVER_HOST }}
+        USERNAME: ${{ secrets.SERVER_USER }}
+        SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      run: |
+        echo "$SSH_KEY" > private_key.pem
+        chmod 600 private_key.pem
+        
+        # Stop existing containers
+        ssh -o StrictHostKeyChecking=no -i private_key.pem $USERNAME@$HOST "cd $DEPLOY_PATH && docker-compose down"
+        
+        # Pull latest code (or copy via scp since we don't have git there)
+        rsync -avz -e "ssh -o StrictHostKeyChecking=no -i private_key.pem" \
+          --exclude='.env' \
+          --exclude='.git' \
+          --exclude='__pycache__' \
+          --exclude='*.pyc' \
+          ./ $USERNAME@$HOST:$DEPLOY_PATH/
+        
+        # Rebuild and start containers
+        ssh -o StrictHostKeyChecking=no -i private_key.pem $USERNAME@$HOST "cd $DEPLOY_PATH && docker-compose up -d --build"
+        
+        rm private_key.pem

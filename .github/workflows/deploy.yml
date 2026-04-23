@@ -25,10 +25,10 @@ jobs:
         chmod 600 private_key.pem
         
         # Stop existing containers
-        ssh -o StrictHostKeyChecking=no -i private_key.pem $USERNAME@$HOST "cd $DEPLOY_PATH && docker-compose down"
+        ssh -o StrictHostKeyChecking=no -p 60066 -i private_key.pem $USERNAME@$HOST "cd $DEPLOY_PATH && docker-compose down"
         
         # Pull latest code (or copy via scp since we don't have git there)
-        rsync -avz -e "ssh -o StrictHostKeyChecking=no -i private_key.pem" \
+        rsync -avz -e "ssh -o StrictHostKeyChecking=no -p 60066 -i private_key.pem" \
           --exclude='.env' \
           --exclude='.git' \
           --exclude='__pycache__' \
@@ -36,6 +36,6 @@ jobs:
           ./ $USERNAME@$HOST:$DEPLOY_PATH/
         
         # Rebuild and start containers
-        ssh -o StrictHostKeyChecking=no -i private_key.pem $USERNAME@$HOST "cd $DEPLOY_PATH && docker-compose up -d --build"
+        ssh -o StrictHostKeyChecking=no -p 60066 -i private_key.pem $USERNAME@$HOST "cd $DEPLOY_PATH && docker-compose up -d --build"
         
         rm private_key.pem

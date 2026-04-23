@@ -8,6 +8,11 @@ services:
       - .env
     expose:
       - "5000"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - weather_network
 
   nginx:
     image: nginx:latest
@@ -19,3 +24,12 @@ services:
       - ./static:/app/static:ro
     depends_on:
       - web
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - weather_network
+
+networks:
+  weather_network:
+    driver: bridge

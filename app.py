@@ -97,7 +97,7 @@ def weather_api():
         sunset_time = datetime.fromtimestamp(sunset_ts, tz=TZ_OFFSET).strftime('%H:%M')
         
         return jsonify({
-            "city": "-Мытищи-",
+            "city": "Мытищи",
             "desc": weather.get('description', 'Ясно'),
             "icon": weather.get('icon', '01d'),
             "temp": round(main.get('temp', 0)),

@@ -9,12 +9,15 @@ import os
 import subprocess
 from dotenv import load_dotenv
 
-# Получаем хеш коммита для версии
-def get_git_commit():
+# Получаем timestamp коммита для версии (меняется при каждом деплое)
+def get_version():
     try:
-        return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
+        commit = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
+        # Также берем timestamp коммита
+        timestamp = subprocess.check_output(['git', 'log', '-1', '--format=%ct', 'HEAD']).decode().strip()
+        return f"{commit}-{timestamp}"
     except:
-        return 'unknown'
+        return datetime.now().strftime('%Y%m%d%H%M%S')
 
 # Загружаем переменные окружения из .env
 load_dotenv()
@@ -22,7 +25,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Версия для cache busting
-VERSION = get_git_commit()
+VERSION = get_version()
 
 # --- Настройки из переменных окружения ---
 # OpenWeatherMap API

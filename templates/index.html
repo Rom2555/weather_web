@@ -98,15 +98,16 @@
         let currentVersion = "{{ version }}";
         
         function checkForUpdates() {
-            fetch('/api/version')
+            fetch('/api/version?t=' + Date.now(), { cache: 'no-store' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.version !== currentVersion) {
-                        console.log("Новая версия обнаружена: " + data.version + " (текущая: " + currentVersion + ")");
-                        location.reload(true);
+                        console.log("Новая версия: " + data.version + ", старая: " + currentVersion + " — обновляем!");
+                        // Принудительная навигация вместо reload
+                        window.location.href = window.location.href.split('?')[0] + '?v=' + data.version;
                     }
                 })
-                .catch(err => console.warn("Не удалось проверить обновления:", err));
+                .catch(err => console.warn("Ошибка проверки обновлений:", err));
         }
         
         // Проверяем обновления каждые 30 секунд

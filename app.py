@@ -1,10 +1,8 @@
 from flask import Flask, render_template, jsonify
-import urllib.request
+import requests
 import urllib.parse
 import json
 from datetime import datetime, timezone, timedelta
-import webbrowser
-from threading import Timer
 import os
 import subprocess
 from dotenv import load_dotenv
@@ -32,8 +30,23 @@ VERSION = get_version()
 URL = "https://api.openweathermap.org/data/2.5/weather"
 URL_FORECAST = "https://api.openweathermap.org/data/2.5/forecast"
 API_KEY = os.environ.get('API_KEY', 'your_api_key_here')
-LAT = float(os.environ.get('LAT'))
-LON = float(os.environ.get('LON'))
+
+# Валидация обязательных переменных окружения
+LAT = os.environ.get('LAT')
+LON = os.environ.get('LON')
+if not LAT or not LON:
+    raise ValueError("Переменные окружения LAT и LON должны быть заданы в .env файле")
+
+LAT = float(LAT)
+LON = float(LON)
+
+# Таймаут для запросов к API (в секундах)
+API_TIMEOUT = 10
+
+# Кеш для хранения последних данных (time, data)
+weather_cache = {'time': 0, 'data': None}
+forecast_cache = {'time': 0, 'data': None}
+CACHE_TTL = 300  # 5 минут - время актуальности кеша
 
 # Часовой пояс UTC+3 (Москва)
 TZ_OFFSET = timezone(timedelta(hours=3))
@@ -91,6 +104,14 @@ def forecast():
 # --- API: получение погоды (текущей) ---
 @app.route('/api/weather')
 def weather_api():
+    global weather_cache
+    
+    current_time = time.time()
+    
+    # Проверяем кеш
+    if weather_cache['data'] and (current_time - weather_cache['time']) < CACHE_TTL:
+        return jsonify(weather_cache['data'])
+    
     try:
         params = urllib.parse.urlencode({
             'lat': LAT,
@@ -99,15 +120,21 @@ def weather_api():
             'units': 'metric',
             'lang': 'ru'
         })
-        response = json.loads(urllib.request.urlopen(f"{URL}?{params}").read().decode())
         
-        if response.get('cod') != 200:
-            return jsonify({"error": response.get('message', 'Ошибка получения данных')}), 500
+        # Используем requests с таймаутом вместо urllib
+        response = requests.get(f"{URL}?{params}", timeout=API_TIMEOUT)
+        data = response.json()
         
-        main = response.get('main', {})
-        wind = response.get('wind', {})
-        weather = response.get('weather', [{}])[0]
-        sys = response.get('sys', {})
+        if data.get('cod') != 200:
+            # Если есть закешированные данные, возвращаем их
+            if weather_cache['data']:
+                return jsonify(weather_cache['data'])
+            return jsonify({"error": data.get('message', 'Ошибка получения данных')}), 500
+        
+        main = data.get('main', {})
+        wind = data.get('wind', {})
+        weather = data.get('weather', [{}])[0]
+        sys = data.get('sys', {})
         
         # Конвертируем timestamps рассвета и заката в локальное время (UTC+3)
         sunrise_ts = sys.get('sunrise', 0)
@@ -115,7 +142,7 @@ def weather_api():
         sunrise_time = datetime.fromtimestamp(sunrise_ts, tz=TZ_OFFSET).strftime('%H:%M')
         sunset_time = datetime.fromtimestamp(sunset_ts, tz=TZ_OFFSET).strftime('%H:%M')
         
-        return jsonify({
+        result = {
             "city": "Мытищи",
             "desc": weather.get('description', 'Ясно'),
             "icon": weather.get('icon', '01d'),
@@ -126,14 +153,37 @@ def weather_api():
             "wind": f"{round(wind.get('speed', 0))} м/с, {get_wind_direction(wind.get('deg', 0))}",
             "sunrise": sunrise_time,
             "sunset": sunset_time
-        })
+        }
+        
+        # Обновляем кеш
+        weather_cache['time'] = current_time
+        weather_cache['data'] = result
+        
+        return jsonify(result)
+    except requests.exceptions.Timeout:
+        print("Таймаут при запросе к API погоды")
+        # Возвращаем закешированные данные если есть
+        if weather_cache['data']:
+            return jsonify(weather_cache['data'])
+        return jsonify({"error": "Превышен таймаут ожидания от сервера"}), 504
     except Exception as e:
         print("Ошибка weather_api:", e)
+        # Возвращаем закешированные данные если есть
+        if weather_cache['data']:
+            return jsonify(weather_cache['data'])
         return jsonify({"error": str(e)}), 500
 
 # --- API: получение прогноза на 5 дней ---
 @app.route('/api/forecast')
 def forecast_api():
+    global forecast_cache
+    
+    current_time = time.time()
+    
+    # Проверяем кеш
+    if forecast_cache['data'] and (current_time - forecast_cache['time']) < CACHE_TTL:
+        return jsonify(forecast_cache['data'])
+    
     try:
         params = urllib.parse.urlencode({
             'lat': LAT,
@@ -142,10 +192,16 @@ def forecast_api():
             'units': 'metric',
             'lang': 'ru'
         })
-        response = json.loads(urllib.request.urlopen(f"{URL_FORECAST}?{params}").read().decode())
         
-        if response.get('cod') != '200':
-            return jsonify({"error": response.get('message', 'Ошибка получения данных')}), 500
+        # Используем requests с таймаутом
+        response = requests.get(f"{URL_FORECAST}?{params}", timeout=API_TIMEOUT)
+        data = response.json()
+        
+        if data.get('cod') != '200':
+            # Если есть закешированные данные, возвращаем их
+            if forecast_cache['data']:
+                return jsonify(forecast_cache['data'])
+            return jsonify({"error": data.get('message', 'Ошибка получения данных')}), 500
         
         # Получаем текущую дату в часовом поясе UTC+3
         today = datetime.now(TZ_OFFSET).date()
@@ -155,7 +211,7 @@ def forecast_api():
         days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
         
         # Сортируем по времени
-        forecast_items = sorted(response.get('list', []), key=lambda x: x.get('dt', 0))
+        forecast_items = sorted(data.get('list', []), key=lambda x: x.get('dt', 0))
         
         # Группируем данные по дням (берем первую выборку на каждый день)
         days_data = {}
@@ -187,32 +243,32 @@ def forecast_api():
         
         forecast_list = list(days_data.values())[:5]
         
-        return jsonify({
+        result = {
             "city": "Мытищи",
             "forecast": forecast_list
-        })
+        }
+        
+        # Обновляем кеш
+        forecast_cache['time'] = current_time
+        forecast_cache['data'] = result
+        
+        return jsonify(result)
+    except requests.exceptions.Timeout:
+        print("Таймаут при запросе к API прогноза")
+        # Возвращаем закешированные данные если есть
+        if forecast_cache['data']:
+            return jsonify(forecast_cache['data'])
+        return jsonify({"error": "Превышен таймаут ожидания от сервера"}), 504
     except Exception as e:
         import traceback
         print("Ошибка forecast_api:", e)
         traceback.print_exc()
+        # Возвращаем закешированные данные если есть
+        if forecast_cache['data']:
+            return jsonify(forecast_cache['data'])
         return jsonify({"error": str(e)}), 500
 
-# Функция для автоматического открытия браузера
-def open_browser():
-    webbrowser.open_new('http://127.0.0.1:5000')
-
-if __name__ == '__main__':
-    # Явно удаляем FLASK_APP из окружения, чтобы избежать reloader
-    os.environ.pop('FLASK_APP', None)
-    print("Server started. PID:", os.getpid())
-
-    # Просто запускаем браузер один раз — без проверки WERKZEUG_RUN_MAIN
-    # Потому что use_reloader=False → только один процесс
-    Timer(1, open_browser).start()
-
-    app.run(
-        host='0.0.0.0',
-        port=5000,
-        debug=False,
-        use_reloader=False  # гарантируем один процесс
-    )
+# Healthcheck endpoint для Docker
+@app.route('/health')
+def health():
+    return jsonify({"status": "ok"})

@@ -147,6 +147,7 @@ def weather_api():
             "city": "Мытищи",
             "desc": weather.get('description', 'Ясно'),
             "icon": weather.get('icon', '01d'),
+            "weather_id": weather.get('id', 800),
             "temp": round(main.get('temp', 0)),
             "feels_like": round(main.get('feels_like', 0)),
             "humidity": main.get('humidity', 0),

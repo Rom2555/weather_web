@@ -16,6 +16,35 @@
     </style>
 </head>
 <body>
+    <!-- Анимированный фон -->
+    <div class="animated-bg" id="animated-bg">
+        <!-- Солнечное сияние -->
+        <div class="sun-rays"></div>
+
+        <!-- Облака -->
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+        <div class="cloud cloud-4"></div>
+
+        <!-- Звёзды/частицы -->
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+
+        <!-- Дождь -->
+        <div class="rain-container" id="rain-container"></div>
+    </div>
+
     <!-- Навигация -->
     <div class="nav-tabs">
         <a href="/" class="nav-btn active" id="nav-home">Погода сейчас</a>
@@ -175,6 +204,9 @@
                     document.getElementById('desc').textContent = data.desc;
                     document.getElementById('weather-icon').src = `/static/icons/animated/${data.icon}.gif`;
 
+                    // Активация эффекта дождя
+                    updateRainEffect(data.weather_id);
+
                     // Обновляем время
                     document.getElementById('last-updated').textContent =
                         `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`;
@@ -196,6 +228,35 @@
                 .finally(() => {
                     weatherSection.classList.remove('updating');
                 });
+        }
+
+        // --- 5. Активация дождя по погоде ---
+        let lastWeatherId = null;
+
+        function updateRainEffect(weatherId) {
+            const rainContainer = document.getElementById('rain-container');
+
+            // ID коды дождя и грозы в OpenWeatherMap: 2xx, 3xx, 5xx
+            const rainCodes = [200, 201, 202, 210, 211, 212, 221, 230, 231, 232,
+                               300, 301, 302, 310, 311, 312, 313, 314, 321,
+                               500, 501, 502, 503, 504, 511, 520, 521, 522, 531];
+
+            if (rainCodes.includes(weatherId)) {
+                // Создаём капли если их ещё нет
+                if (rainContainer.children.length === 0) {
+                    for (let i = 0; i < 50; i++) {
+                        const drop = document.createElement('div');
+                        drop.className = 'raindrop';
+                        drop.style.left = Math.random() * 100 + '%';
+                        drop.style.animationDuration = (Math.random() * 1 + 0.5) + 's';
+                        drop.style.animationDelay = Math.random() * 2 + 's';
+                        rainContainer.appendChild(drop);
+                    }
+                }
+                rainContainer.classList.add('active');
+            } else {
+                rainContainer.classList.remove('active');
+            }
         }
 
         // --- Запуск ---

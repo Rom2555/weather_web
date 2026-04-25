@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Часы + Погода</title>
-    <!-- Подключаем шрифт ДО CSS -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ version }}">
     <style>
         .container {
@@ -13,21 +12,31 @@
             transform: none;
             cursor: auto;
         }
+        .city-info {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        #city {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        #desc {
+            font-size: 16px;
+            color: var(--text-secondary);
+            text-transform: capitalize;
+        }
     </style>
 </head>
 <body>
     <!-- Анимированный фон -->
     <div class="animated-bg" id="animated-bg">
-        <!-- Солнечное сияние -->
         <div class="sun-rays"></div>
-
-        <!-- Облака -->
         <div class="cloud cloud-1"></div>
         <div class="cloud cloud-2"></div>
         <div class="cloud cloud-3"></div>
         <div class="cloud cloud-4"></div>
-
-        <!-- Звёзды/частицы -->
         <div class="particles">
             <div class="particle"></div>
             <div class="particle"></div>
@@ -40,8 +49,6 @@
             <div class="particle"></div>
             <div class="particle"></div>
         </div>
-
-        <!-- Дождь -->
         <div class="rain-container" id="rain-container"></div>
     </div>
 
@@ -51,21 +58,23 @@
         <a href="/forecast" class="nav-btn" id="nav-forecast">Прогноз на неделю</a>
     </div>
 
-    <!-- Анимация загрузки -->
+    <!-- Скелетон-лоадер -->
     <div class="loader" id="loader">
         <div class="loader-content">
-            <div class="loader-title">Загрузка погоды...</div>
-            <div class="loader-dots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
+            <div class="skeleton-box skeleton-title"></div>
+            <div class="skeleton-box skeleton-text"></div>
+            <div class="skeleton-box skeleton-icon"></div>
+            <div style="display: flex; gap: 16px; justify-content: center; margin-top: 24px;">
+                <div class="skeleton-box" style="width: 80px; height: 60px;"></div>
+                <div class="skeleton-box" style="width: 80px; height: 60px;"></div>
+                <div class="skeleton-box" style="width: 80px; height: 60px;"></div>
             </div>
         </div>
     </div>
 
     <!-- Основной контент -->
     <div class="container" id="container">
-        <div class="clock-section">
+        <div class="clock-section glass-card">
             <div class="time" id="time">00:00:00</div>
             <div class="date-day">
                 <span id="date">00-00-0000</span>
@@ -73,86 +82,126 @@
             </div>
         </div>
 
-        <div class="weather-section" id="weather-section">
+        <div class="weather-section glass-card" id="weather-section">
+            <div class="city-info">
+                <div class="city" id="city">Загрузка...</div>
+                <div class="desc" id="desc">—</div>
+            </div>
+
             <div class="weather-header">
                 <img id="weather-icon" src="{{ url_for('static', filename='icons/animated/01d.gif') }}" alt="Погода">
                 <div class="temp-main" id="temp">--°C</div>
             </div>
 
             <div class="weather-details">
-                <div class="city" id="city">Загрузка...</div>
-                <div class="desc" id="desc">—</div>
-
-                <div class="info-grid">
-                    <div class="item">
-                        <img src="{{ url_for('static', filename='icons/mindset.png') }}" alt="Ощущается" class="icon-feels">
-                        <span>Ощущается:</span>
-                        <strong id="feels_like">--°C</strong>
+                <div class="item">
+                    <div class="item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+                        </svg>
                     </div>
-                    <div class="item">
-                        <img src="{{ url_for('static', filename='icons/humidity.png') }}" alt="Влажность" class="icon-humidity">
-                        <span>Влажность:</span>
-                        <strong id="humidity">--%</strong>
+                    <div class="item-label">Ощущается</div>
+                    <div class="item-value" id="feels_like">--°C</div>
+                </div>
+                <div class="item">
+                    <div class="item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                        </svg>
                     </div>
-                    <div class="item">
-                        <img src="{{ url_for('static', filename='icons/resilience.png') }}" alt="Давление" class="icon-pressure">
-                        <span>Давление:</span>
-                        <strong id="pressure">-- мм рт. ст.</strong>
+                    <div class="item-label">Влажность</div>
+                    <div class="item-value" id="humidity">--%</div>
+                </div>
+                <div class="item">
+                    <div class="item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
                     </div>
-                    <div class="item">
-                        <img src="{{ url_for('static', filename='icons/windy.png') }}" alt="Ветер" class="icon-wind">
-                        <span>Ветер:</span>
-                        <strong id="wind">-- м/с</strong>
+                    <div class="item-label">Давление</div>
+                    <div class="item-value" id="pressure">--</div>
+                </div>
+                <div class="item">
+                    <div class="item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
+                        </svg>
                     </div>
-                    <div class="item">
-                        <img src="{{ url_for('static', filename='icons/animated/sunrise.gif') }}" alt="Восход" class="icon-sunrise">
-                        <span>Восход:</span>
-                        <strong id="sunrise">--:--</strong>
+                    <div class="item-label">Ветер</div>
+                    <div class="item-value" id="wind">--</div>
+                </div>
+                <div class="item">
+                    <div class="item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 18a5 5 0 0 0-10 0"/>
+                            <line x1="12" y1="2" x2="12" y2="9"/>
+                            <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/>
+                            <line x1="1" y1="18" x2="3" y2="18"/>
+                            <line x1="21" y1="18" x2="23" y2="18"/>
+                            <line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/>
+                            <line x1="23" y1="22" x2="1" y2="22"/>
+                            <polyline points="8,6 12,2 16,6"/>
+                        </svg>
                     </div>
-                    <div class="item">
-                        <img src="{{ url_for('static', filename='icons/animated/sunset.gif') }}" alt="Закат" class="icon-sunset">
-                        <span>Закат:</span>
-                        <strong id="sunset">--:--</strong>
+                    <div class="item-label">Восход</div>
+                    <div class="item-value" id="sunrise">--:--</div>
+                </div>
+                <div class="item">
+                    <div class="item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 18a5 5 0 0 0-10 0"/>
+                            <line x1="12" y1="9" x2="12" y2="2"/>
+                            <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/>
+                            <line x1="1" y1="18" x2="3" y2="18"/>
+                            <line x1="21" y1="18" x2="23" y2="18"/>
+                            <line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/>
+                            <line x1="23" y1="22" x2="1" y2="22"/>
+                            <polyline points="8,6 12,10 16,6"/>
+                        </svg>
                     </div>
+                    <div class="item-label">Закат</div>
+                    <div class="item-value" id="sunset">--:--</div>
                 </div>
             </div>
 
             <!-- Индикатор обновления -->
-            <div class="last-updated" id="last-updated">Обновлено: --:--:--</div>
+            <div class="update-indicator">
+                <button class="update-btn" id="update-btn" title="Обновить">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 4v6h-6"/>
+                        <path d="M1 20v-6h6"/>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                    </svg>
+                </button>
+                <span id="last-updated">Обновлено: --:--:--</span>
+            </div>
         </div>
     </div>
 
     <script>
         // --- 0. Проверка обновлений и автообновление ---
         let currentVersion = "{{ version }}";
-        
+
         function checkForUpdates() {
             fetch('/api/version?t=' + Date.now(), { cache: 'no-store' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.version !== currentVersion) {
                         console.log("Новая версия: " + data.version + ", старая: " + currentVersion + " — обновляем!");
-                        // Принудительная навигация вместо reload
                         window.location.href = window.location.href.split('?')[0] + '?v=' + data.version;
                     }
                 })
                 .catch(err => console.warn("Ошибка проверки обновлений:", err));
         }
-        
-        // Проверяем обновления каждые 30 секунд
+
         setInterval(checkForUpdates, 30000);
 
         // --- 1. Скрытие лоадера ---
         window.addEventListener('load', () => {
             setTimeout(() => {
-                document.getElementById('loader').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loader').style.display = 'none';
-                }, 500);
+                document.getElementById('loader').classList.add('hidden');
             }, 800);
-
-            // Показать контент
-            document.getElementById('container').classList.add('fade-in');
         });
 
         // --- 2. Обновление времени ---
@@ -167,7 +216,7 @@
             document.getElementById('day').textContent = days[now.getDay()];
         }
 
-        // --- 3. Переключение темы (ночь/день) — ИСПРАВЛЕНО ---
+        // --- 3. Переключение темы (ночь/день) ---
         function updateTheme() {
             const hour = new Date().getHours();
             if (hour >= 20 || hour < 6) {
@@ -177,12 +226,11 @@
             }
         }
 
-        // --- 4. Обновление погоды с анимацией ---
+        // --- 4. Обновление погоды ---
         function updateWeather() {
-            const weatherSection = document.getElementById('weather-section');
-            weatherSection.classList.add('updating');
+            const updateBtn = document.getElementById('update-btn');
+            updateBtn.classList.add('spinning');
 
-            // Время запроса (до fetch)
             const requestTime = new Date();
 
             fetch('/api/weather')
@@ -204,45 +252,28 @@
                     document.getElementById('desc').textContent = data.desc;
                     document.getElementById('weather-icon').src = `/static/icons/animated/${data.icon}.gif`;
 
-                    // Активация эффекта дождя
                     updateRainEffect(data.weather_id);
 
-                    // Обновляем время
                     document.getElementById('last-updated').textContent =
                         `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`;
-
-                    // Анимация обновления
-                    weatherSection.classList.remove('updating');
-                    weatherSection.classList.add('updated');
-                    setTimeout(() => {
-                        weatherSection.classList.remove('updated');
-                    }, 600);
                 })
                 .catch(err => {
                     console.error("Ошибка загрузки погоды:", err);
                     document.getElementById('city').textContent = 'Ошибка';
-
-                    document.getElementById('last-updated').textContent =
-                        `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`;
                 })
                 .finally(() => {
-                    weatherSection.classList.remove('updating');
+                    updateBtn.classList.remove('spinning');
                 });
         }
 
-        // --- 5. Активация дождя по погоде ---
-        let lastWeatherId = null;
-
+        // --- 5. Активация дождя ---
         function updateRainEffect(weatherId) {
             const rainContainer = document.getElementById('rain-container');
-
-            // ID коды дождя и грозы в OpenWeatherMap: 2xx, 3xx, 5xx
             const rainCodes = [200, 201, 202, 210, 211, 212, 221, 230, 231, 232,
                                300, 301, 302, 310, 311, 312, 313, 314, 321,
                                500, 501, 502, 503, 504, 511, 520, 521, 522, 531];
 
             if (rainCodes.includes(weatherId)) {
-                // Создаём капли если их ещё нет
                 if (rainContainer.children.length === 0) {
                     for (let i = 0; i < 50; i++) {
                         const drop = document.createElement('div');
@@ -259,10 +290,13 @@
             }
         }
 
+        // --- 6. Кнопка ручного обновления ---
+        document.getElementById('update-btn').addEventListener('click', updateWeather);
+
         // --- Запуск ---
         setInterval(updateTime, 1000);
         setInterval(updateTheme, 60000);
-        setInterval(updateWeather, 900000); // каждые 15 минут
+        setInterval(updateWeather, 900000);
 
         updateTime();
         updateTheme();

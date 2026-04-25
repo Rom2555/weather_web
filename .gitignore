@@ -24,3 +24,5 @@ build/
 *.tmp
 *.swp
 *~
+
+.kilocode/

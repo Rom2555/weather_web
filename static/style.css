@@ -169,13 +169,16 @@ html {
 
 /* === ЭФФЕКТ ОБЛАКА ЗА СТЕКЛОМ === */
 .weather-glass {
-    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.6s ease;
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.6s ease, border-color 0.6s ease;
 }
 
 .weather-glass.cloud-passing {
     transform: translateY(-6px) scale(1.01);
+    /* Делаем свечение гораздо агрессивнее */
     box-shadow:
-        0 30px 70px rgba(0, 0, 0, 0.25),
-        inset 0 0 40px rgba(255, 255, 255, 0.15), /* внутреннее переливание стекла */
-        0 0 60px rgba(255, 255, 255, 0.05);      /* внешняя подсветка */
+        0 30px 70px rgba(0, 0, 0, 0.4),
+        inset 0 0 80px rgba(255, 255, 255, 0.1),  /* Широкое внутреннее преломление */
+        0 0 50px rgba(255, 255, 255, 0.06);       /* Внешний световой ореол */
+    /* Главный трик: заставляем контур стекла ярко светиться */
+    border-color: rgba(255, 255, 255, 0.5) !important;
 }

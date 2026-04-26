@@ -6,7 +6,7 @@
     <title>Часы + Погода</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <!-- Анимированный фон -->
@@ -53,14 +53,14 @@
         </div>
 
         <!-- Погода -->
-        <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-5 text-white shadow-2xl border border-white/20" id="weather-section">
+        <div id="weather-section" class="bg-white/10 backdrop-blur-lg rounded-3xl p-5 text-white shadow-2xl border border-white/20">
             <div class="text-center mb-2">
                 <div class="text-2xl font-bold" style="font-family: 'Montserrat', sans-serif;" id="city">Загрузка...</div>
                 <div class="text-white/70 capitalize mt-1" id="desc">—</div>
             </div>
 
             <div class="flex items-center justify-center gap-6 mb-4">
-                <img id="weather-icon" class="w-24 h-24" src="{{ url_for('static', filename='icons/animated/01d.gif') }}" alt="Погода" style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));">
+                <div id="weather-icon" class="text-8xl drop-shadow-lg">☀️</div>
                 <div class="text-6xl md:text-7xl font-extralight" id="temp">--°C</div>
             </div>
 
@@ -113,41 +113,33 @@
         window.addEventListener('load', () => { setTimeout(() => { document.getElementById('loader').classList.add('hidden'); }, 800); });
         function updateTime() { const now = new Date(); const days = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"]; const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"]; document.getElementById('time').textContent = now.toLocaleTimeString('ru-RU', { hour12: false }); document.getElementById('date').textContent = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`; document.getElementById('day').textContent = days[now.getDay()]; }
         function updateTheme() { const hour = new Date().getHours(); if (hour >= 20 || hour < 6) { document.body.classList.add('night'); } else { document.body.classList.remove('night'); } }
-        function updateWeather() { const updateBtn = document.getElementById('update-btn'); updateBtn.classList.add('spinning'); const requestTime = new Date(); fetch('/api/weather').then(response => response.json()).then(data => { if (data.error) { console.warn("API вернул ошибку:", data.error); return; } document.getElementById('city').textContent = data.city; document.getElementById('temp').textContent = `${Math.round(data.temp)}°C`; document.getElementById('feels_like').textContent = `${Math.round(data.feels_like)}°C`; document.getElementById('humidity').textContent = `${data.humidity}%`; document.getElementById('pressure').textContent = `${data.pressure} мм рт. ст.`; document.getElementById('wind').textContent = data.wind; document.getElementById('sunrise').textContent = data.sunrise; document.getElementById('sunset').textContent = data.sunset; document.getElementById('desc').textContent = data.desc; document.getElementById('weather-icon').src = `/static/icons/animated/${data.icon}.gif`; updateRainEffect(data.weather_id); document.getElementById('last-updated').textContent = `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`; }).catch(err => { console.error("Ошибка загрузки погоды:", err); document.getElementById('city').textContent = 'Ошибка'; }).finally(() => { updateBtn.classList.remove('spinning'); }); }
+
+        function getWeatherEmoji(icon) {
+            const map = { '01d': '☀️', '01n': '🌙', '02d': '⛅', '02n': '☁️', '03d': '☁️', '03n': '☁️', '04d': '☁️', '04n': '☁️', '09d': '🌧️', '09n': '🌧️', '10d': '🌦️', '10n': '🌧️', '11d': '⛈️', '11n': '⛈️', '13d': '❄️', '13n': '❄️', '50d': '🌫️', '50n': '🌫️' };
+            return map[icon] || '🌤️';
+        }
+
+        function updateWeather() { const updateBtn = document.getElementById('update-btn'); updateBtn.classList.add('spinning'); const requestTime = new Date(); fetch('/api/weather').then(response => response.json()).then(data => { if (data.error) { console.warn("API вернул ошибку:", data.error); return; } document.getElementById('city').textContent = data.city; document.getElementById('temp').textContent = `${Math.round(data.temp)}°C`; document.getElementById('feels_like').textContent = `${Math.round(data.feels_like)}°C`; document.getElementById('humidity').textContent = `${data.humidity}%`; document.getElementById('pressure').textContent = `${data.pressure} мм рт. ст.`; document.getElementById('wind').textContent = data.wind; document.getElementById('sunrise').textContent = data.sunrise; document.getElementById('sunset').textContent = data.sunset; document.getElementById('desc').textContent = data.desc; document.getElementById('weather-icon').textContent = getWeatherEmoji(data.icon); updateRainEffect(data.weather_id); document.getElementById('last-updated').textContent = `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`; }).catch(err => { console.error("Ошибка загрузки погоды:", err); document.getElementById('city').textContent = 'Ошибка'; }).finally(() => { updateBtn.classList.remove('spinning'); }); }
+
         function updateRainEffect(weatherId) { const rainContainer = document.getElementById('rain-container'); const rainCodes = [200, 201, 202, 210, 211, 212, 221, 230, 231, 232, 300, 301, 302, 310, 311, 312, 313, 314, 321, 500, 501, 502, 503, 504, 511, 520, 521, 522, 531]; if (rainCodes.includes(weatherId)) { if (rainContainer.children.length === 0) { for (let i = 0; i < 50; i++) { const drop = document.createElement('div'); drop.className = 'raindrop'; drop.style.left = Math.random() * 100 + '%'; drop.style.animationDuration = (Math.random() * 1 + 0.5) + 's'; drop.style.animationDelay = Math.random() * 2 + 's'; rainContainer.appendChild(drop); } } rainContainer.classList.add('active'); } else { rainContainer.classList.remove('active'); } }
+
         document.getElementById('update-btn').addEventListener('click', updateWeather);
         setInterval(updateTime, 1000); setInterval(updateTheme, 60000); setInterval(updateWeather, 900000);
         updateTime(); updateTheme(); updateWeather();
 
-        // --- 7. Эффект прохождения облака под стеклом (Обе плитки) ---
-        const glassCards = [
-            document.getElementById('clock-section'),
-            document.getElementById('weather-section')
-        ];
+        // --- Эффект прохождения облака под стеклом ---
+        const glassCards = [ document.getElementById('clock-section'), document.getElementById('weather-section') ];
         const clouds = document.querySelectorAll('.cloud');
-
         function checkCloudIntersection() {
             glassCards.forEach(card => {
                 if (!card) return;
                 const cardRect = card.getBoundingClientRect();
                 let isOverlapping = false;
-
                 clouds.forEach(cloud => {
                     const cloudRect = cloud.getBoundingClientRect();
-
-                    if (!(cloudRect.right < cardRect.left ||
-                          cloudRect.left > cardRect.right ||
-                          cloudRect.bottom < cardRect.top ||
-                          cloudRect.top > cardRect.bottom)) {
-                        isOverlapping = true;
-                    }
+                    if (!(cloudRect.right < cardRect.left || cloudRect.left > cardRect.right || cloudRect.bottom < cardRect.top || cloudRect.top > cardRect.bottom)) { isOverlapping = true; }
                 });
-
-                if (isOverlapping) {
-                    card.classList.add('cloud-passing');
-                } else {
-                    card.classList.remove('cloud-passing');
-                }
+                if (isOverlapping) { card.classList.add('cloud-passing'); } else { card.classList.remove('cloud-passing'); }
             });
             requestAnimationFrame(checkCloudIntersection);
         }

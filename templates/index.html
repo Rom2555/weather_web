@@ -6,9 +6,7 @@
     <title>Часы + Погода</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ version }}">
-    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     <!-- Анимированный фон -->
@@ -67,37 +65,31 @@
             </div>
 
             <div class="grid grid-cols-3 gap-3">
-                <!-- Ощущается -->
                 <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
                     <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
                     <div class="text-[0.65rem] text-white/50 mb-0.5">Ощущается</div>
                     <div class="text-base font-semibold" id="feels_like">--°C</div>
                 </div>
-                <!-- Влажность -->
                 <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
                     <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></div>
                     <div class="text-[0.65rem] text-white/50 mb-0.5">Влажность</div>
                     <div class="text-base font-semibold" id="humidity">--%</div>
                 </div>
-                <!-- Давление -->
                 <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
                     <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
                     <div class="text-[0.65rem] text-white/50 mb-0.5">Давление</div>
                     <div class="text-base font-semibold" id="pressure">--</div>
                 </div>
-                <!-- Ветер -->
                 <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
                     <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></div>
                     <div class="text-[0.65rem] text-white/50 mb-0.5">Ветер</div>
                     <div class="text-base font-semibold" id="wind">--</div>
                 </div>
-                <!-- Восход -->
                 <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
                     <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8,6 12,2 16,6"/></svg></div>
                     <div class="text-[0.65rem] text-white/50 mb-0.5">Восход</div>
                     <div class="text-base font-semibold" id="sunrise">--:--</div>
                 </div>
-                <!-- Закат -->
                 <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
                     <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8,6 12,10 16,6"/></svg></div>
                     <div class="text-[0.65rem] text-white/50 mb-0.5">Закат</div>
@@ -105,7 +97,6 @@
                 </div>
             </div>
 
-            <!-- Индикатор обновления -->
             <div class="flex items-center justify-center gap-3 mt-4 text-white/50 text-sm border-t border-white/10 pt-4">
                 <button class="text-white/70 hover:text-white transition-colors" id="update-btn" title="Обновить">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -116,7 +107,6 @@
     </div>
 
     <script>
-        // Весь JS остался БЕЗ ИЗМЕНЕНИЙ
         let currentVersion = "{{ version }}";
         function checkForUpdates() { fetch('/api/version?t=' + Date.now(), { cache: 'no-store' }).then(response => response.json()).then(data => { if (data.version !== currentVersion) { window.location.href = window.location.href.split('?')[0] + '?v=' + data.version; } }).catch(err => console.warn("Ошибка проверки обновлений:", err)); }
         setInterval(checkForUpdates, 30000);
@@ -128,33 +118,37 @@
         document.getElementById('update-btn').addEventListener('click', updateWeather);
         setInterval(updateTime, 1000); setInterval(updateTheme, 60000); setInterval(updateWeather, 900000);
         updateTime(); updateTheme(); updateWeather();
-                // --- 7. Эффект прохождения облака под стеклом ---
-        const glassCard = document.getElementById('weather-section');
-        glassCard.classList.add('weather-glass');
+
+        // --- 7. Эффект прохождения облака под стеклом (Обе плитки) ---
+        const glassCards = [
+            document.getElementById('clock-section'),
+            document.getElementById('weather-section')
+        ];
         const clouds = document.querySelectorAll('.cloud');
 
         function checkCloudIntersection() {
-            const cardRect = glassCard.getBoundingClientRect();
-            let isOverlapping = false;
+            glassCards.forEach(card => {
+                if (!card) return;
+                const cardRect = card.getBoundingClientRect();
+                let isOverlapping = false;
 
-            clouds.forEach(cloud => {
-                const cloudRect = cloud.getBoundingClientRect();
+                clouds.forEach(cloud => {
+                    const cloudRect = cloud.getBoundingClientRect();
 
-                // Проверка пересечения прямоугольников
-                if (!(cloudRect.right < cardRect.left ||
-                      cloudRect.left > cardRect.right ||
-                      cloudRect.bottom < cardRect.top ||
-                      cloudRect.top > cardRect.bottom)) {
-                    isOverlapping = true;
+                    if (!(cloudRect.right < cardRect.left ||
+                          cloudRect.left > cardRect.right ||
+                          cloudRect.bottom < cardRect.top ||
+                          cloudRect.top > cardRect.bottom)) {
+                        isOverlapping = true;
+                    }
+                });
+
+                if (isOverlapping) {
+                    card.classList.add('cloud-passing');
+                } else {
+                    card.classList.remove('cloud-passing');
                 }
             });
-
-            if (isOverlapping) {
-                glassCard.classList.add('cloud-passing');
-            } else {
-                glassCard.classList.remove('cloud-passing');
-            }
-
             requestAnimationFrame(checkCloudIntersection);
         }
         requestAnimationFrame(checkCloudIntersection);

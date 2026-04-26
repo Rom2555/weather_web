@@ -7,6 +7,7 @@ from datetime import datetime, timezone, timedelta
 import os
 import subprocess
 from dotenv import load_dotenv
+from cachetools import TTLCache
 
 def get_version():
     """Получает версию приложения на основе git коммита и timestamp.
@@ -56,14 +57,12 @@ LON = float(LON)
 # При превышении таймаута используется кешированные данные если они доступны
 API_TIMEOUT = 10
 
-# Кеш для хранения последних данных (time, data)
-# Структура: {'time': timestamp, 'data': cached_data}
+# Кеш для хранения последних данных с автоматическим временем жизни
 # Используется для уменьшения количества запросов к OpenWeatherMap API
-weather_cache = {'time': 0, 'data': None}
-forecast_cache = {'time': 0, 'data': None}
-# Время жизни кеша в секундах (5 минут)
-# Баланс между свежестью данных и ограничением API запросов
-CACHE_TTL = 300
+# TTLCache автоматически удаляет устаревшие записи и потокобезопасен
+CACHE_TTL = 300  # Время жизни кеша в секундах (5 минут)
+weather_cache = TTLCache(maxsize=100, ttl=CACHE_TTL)
+forecast_cache = TTLCache(maxsize=100, ttl=CACHE_TTL)
 
 # Часовой пояс UTC+3 (Москва)
 TZ_OFFSET = timezone(timedelta(hours=3))
@@ -170,14 +169,12 @@ def weather_api():
     Кеширование:
         Данные кешируются на CACHE_TTL секунд (по умолчанию 5 минут)
         чтобы уменьшить количество запросов к OpenWeatherMap API
+        Используется потокобезопасный TTLCache из cachetools
     """
-    global weather_cache
-    
-    current_time = time.time()
-    
-    # Проверяем кеш
-    if weather_cache['data'] and (current_time - weather_cache['time']) < CACHE_TTL:
-        return jsonify(weather_cache['data'])
+    # Пытаемся получить данные из кеша
+    cached_data = weather_cache.get('data')
+    if cached_data is not None:
+        return jsonify(cached_data)
     
     try:
         params = urllib.parse.urlencode({
@@ -194,8 +191,8 @@ def weather_api():
         
         if data.get('cod') != 200:
             # Если есть закешированные данные, возвращаем их
-            if weather_cache['data']:
-                return jsonify(weather_cache['data'])
+            if weather_cache.get('data') is not None:
+                return jsonify(weather_cache.get('data'))
             return jsonify({"error": data.get('message', 'Ошибка получения данных')}), 500
         
         main = data.get('main', {})
@@ -224,21 +221,20 @@ def weather_api():
         }
         
         # Обновляем кеш
-        weather_cache['time'] = current_time
         weather_cache['data'] = result
         
         return jsonify(result)
     except requests.exceptions.Timeout:
         print("Таймаут при запросе к API погоды")
         # Возвращаем закешированные данные если есть
-        if weather_cache['data']:
-            return jsonify(weather_cache['data'])
+        if weather_cache.get('data') is not None:
+            return jsonify(weather_cache.get('data'))
         return jsonify({"error": "Превышен таймаут ожидания от сервера"}), 504
     except Exception as e:
         print("Ошибка weather_api:", e)
         # Возвращаем закешированные данные если есть
-        if weather_cache['data']:
-            return jsonify(weather_cache['data'])
+        if weather_cache.get('data') is not None:
+            return jsonify(weather_cache.get('data'))
         return jsonify({"error": str(e)}), 500
 
 # --- API: получение прогноза на 5 дней ---
@@ -252,6 +248,7 @@ def forecast_api():
     Кеширование:
         Данные кешируются на CACHE_TTL секунд (по умолчанию 5 минут)
         чтобы уменьшить количество запросов к OpenWeatherMap API
+        Используется потокобезопасный TTLCache из cachetools
         
     Логика группировки:
         - OpenWeatherMap API возвращает прогноз с шагом 3 часа на 5 дней (40 записей)
@@ -260,13 +257,10 @@ def forecast_api():
         - Возвращается максимум 5 дней прогноза (завтра и следующие 4 дня)
         - Для каждого дня берется температура, описание погоды, иконка, влажность и ветер
     """
-    global forecast_cache
-    
-    current_time = time.time()
-    
-    # Проверяем кеш
-    if forecast_cache['data'] and (current_time - forecast_cache['time']) < CACHE_TTL:
-        return jsonify(forecast_cache['data'])
+    # Пытаемся получить данные из кеша
+    cached_data = forecast_cache.get('data')
+    if cached_data is not None:
+        return jsonify(cached_data)
     
     try:
         params = urllib.parse.urlencode({
@@ -283,8 +277,8 @@ def forecast_api():
         
         if data.get('cod') != '200':
             # Если есть закешированные данные, возвращаем их
-            if forecast_cache['data']:
-                return jsonify(forecast_cache['data'])
+            if forecast_cache.get('data') is not None:
+                return jsonify(forecast_cache.get('data'))
             return jsonify({"error": data.get('message', 'Ошибка получения данных')}), 500
         
         # Получаем текущую дату в часовом поясе UTC+3
@@ -345,7 +339,6 @@ def forecast_api():
         }
         
         # Обновляем кеш
-        forecast_cache['time'] = current_time
         forecast_cache['data'] = result
         
         return jsonify(result)
@@ -353,8 +346,8 @@ def forecast_api():
         print("Таймаут при запросе к API прогноза")
         # Возвращаем закешированные данные если есть
         # Это повышает отказоустойчивость приложения при проблемах с сетью
-        if forecast_cache['data']:
-            return jsonify(forecast_cache['data'])
+        if forecast_cache.get('data') is not None:
+            return jsonify(forecast_cache.get('data'))
         return jsonify({"error": "Превышен таймаут ожидания от сервера"}), 504
     except Exception as e:
         import traceback
@@ -362,8 +355,8 @@ def forecast_api():
         traceback.print_exc()
         # Возвращаем закешированные данные если есть
         # Это еще один механизм отказоустойчивости
-        if forecast_cache['data']:
-            return jsonify(forecast_cache['data'])
+        if forecast_cache.get('data') is not None:
+            return jsonify(forecast_cache.get('data'))
         return jsonify({"error": str(e)}), 500
 
 # Healthcheck endpoint для Docker

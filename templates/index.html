@@ -62,7 +62,9 @@
             </div>
 
             <div class="flex items-center justify-center gap-6 mb-4">
-                <img id="weather-icon" class="w-20 h-20 drop-shadow-lg" src="{{ url_for('static', filename='icons/animated/01d.gif') }}" alt="Погода">
+                <div class="bg-white/15 rounded-full p-3">
+                    <img id="weather-icon" class="w-16 h-16" src="{{ url_for('static', filename='icons/animated/01d.gif') }}" alt="Погода">
+                </div>
                 <div class="text-6xl md:text-7xl font-extralight" id="temp">--°C</div>
             </div>
 

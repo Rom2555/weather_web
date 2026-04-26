@@ -128,6 +128,36 @@
         document.getElementById('update-btn').addEventListener('click', updateWeather);
         setInterval(updateTime, 1000); setInterval(updateTheme, 60000); setInterval(updateWeather, 900000);
         updateTime(); updateTheme(); updateWeather();
+                // --- 7. Эффект прохождения облака под стеклом ---
+        const glassCard = document.getElementById('weather-section');
+        glassCard.classList.add('weather-glass');
+        const clouds = document.querySelectorAll('.cloud');
+
+        function checkCloudIntersection() {
+            const cardRect = glassCard.getBoundingClientRect();
+            let isOverlapping = false;
+
+            clouds.forEach(cloud => {
+                const cloudRect = cloud.getBoundingClientRect();
+
+                // Проверка пересечения прямоугольников
+                if (!(cloudRect.right < cardRect.left ||
+                      cloudRect.left > cardRect.right ||
+                      cloudRect.bottom < cardRect.top ||
+                      cloudRect.top > cardRect.bottom)) {
+                    isOverlapping = true;
+                }
+            });
+
+            if (isOverlapping) {
+                glassCard.classList.add('cloud-passing');
+            } else {
+                glassCard.classList.remove('cloud-passing');
+            }
+
+            requestAnimationFrame(checkCloudIntersection);
+        }
+        requestAnimationFrame(checkCloudIntersection);
     </script>
 </body>
 </html>

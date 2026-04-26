@@ -43,11 +43,11 @@
     </div>
 
     <!-- Основной контент -->
-    <div class="max-w-lg mx-auto px-6 pb-10 relative z-10 space-y-6" id="container">
+    <div class="max-w-2xl mx-auto px-6 pb-4 relative z-10 space-y-4" id="container">
         <!-- Часы -->
-        <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 text-center text-white shadow-2xl border border-white/20">
+        <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-5 text-center text-white shadow-2xl border border-white/20">
             <div class="text-5xl md:text-6xl font-bold tracking-wider" style="font-family: 'Montserrat', sans-serif;" id="time">00:00:00</div>
-            <div class="flex justify-center gap-4 mt-3 text-white/80 text-sm md:text-base">
+            <div class="flex justify-center gap-4 mt-2 text-white/80 text-sm md:text-base">
                 <span id="date">00-00-0000</span>
                 <span>•</span>
                 <span id="day">Понедельник</span>
@@ -55,58 +55,58 @@
         </div>
 
         <!-- Погода -->
-        <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 text-white shadow-2xl border border-white/20" id="weather-section">
-            <div class="text-center mb-6">
+        <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-5 text-white shadow-2xl border border-white/20" id="weather-section">
+            <div class="text-center mb-2">
                 <div class="text-2xl font-bold" style="font-family: 'Montserrat', sans-serif;" id="city">Загрузка...</div>
                 <div class="text-white/70 capitalize mt-1" id="desc">—</div>
             </div>
 
-            <div class="flex items-center justify-center gap-6 mb-8">
-                <img id="weather-icon" class="w-24 h-24 drop-shadow-lg" src="{{ url_for('static', filename='icons/animated/01d.gif') }}" alt="Погода">
-                <div class="text-7xl md:text-8xl font-extralight" id="temp">--°C</div>
+            <div class="flex items-center justify-center gap-6 mb-4">
+                <img id="weather-icon" class="w-20 h-20 drop-shadow-lg" src="{{ url_for('static', filename='icons/animated/01d.gif') }}" alt="Погода">
+                <div class="text-6xl md:text-7xl font-extralight" id="temp">--°C</div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-3 gap-3">
                 <!-- Ощущается -->
-                <div class="bg-white/5 rounded-2xl p-4 text-center border border-white/10">
-                    <div class="flex justify-center mb-2 text-white/60"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
-                    <div class="text-xs text-white/50 mb-1">Ощущается</div>
-                    <div class="text-lg font-semibold" id="feels_like">--°C</div>
+                <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
+                    <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
+                    <div class="text-[0.65rem] text-white/50 mb-0.5">Ощущается</div>
+                    <div class="text-base font-semibold" id="feels_like">--°C</div>
                 </div>
                 <!-- Влажность -->
-                <div class="bg-white/5 rounded-2xl p-4 text-center border border-white/10">
-                    <div class="flex justify-center mb-2 text-white/60"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></div>
-                    <div class="text-xs text-white/50 mb-1">Влажность</div>
-                    <div class="text-lg font-semibold" id="humidity">--%</div>
+                <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
+                    <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></div>
+                    <div class="text-[0.65rem] text-white/50 mb-0.5">Влажность</div>
+                    <div class="text-base font-semibold" id="humidity">--%</div>
                 </div>
                 <!-- Давление -->
-                <div class="bg-white/5 rounded-2xl p-4 text-center border border-white/10">
-                    <div class="flex justify-center mb-2 text-white/60"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-                    <div class="text-xs text-white/50 mb-1">Давление</div>
-                    <div class="text-lg font-semibold" id="pressure">--</div>
+                <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
+                    <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                    <div class="text-[0.65rem] text-white/50 mb-0.5">Давление</div>
+                    <div class="text-base font-semibold" id="pressure">--</div>
                 </div>
                 <!-- Ветер -->
-                <div class="bg-white/5 rounded-2xl p-4 text-center border border-white/10">
-                    <div class="flex justify-center mb-2 text-white/60"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></div>
-                    <div class="text-xs text-white/50 mb-1">Ветер</div>
-                    <div class="text-lg font-semibold" id="wind">--</div>
+                <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
+                    <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></div>
+                    <div class="text-[0.65rem] text-white/50 mb-0.5">Ветер</div>
+                    <div class="text-base font-semibold" id="wind">--</div>
                 </div>
                 <!-- Восход -->
-                <div class="bg-white/5 rounded-2xl p-4 text-center border border-white/10">
-                    <div class="flex justify-center mb-2 text-white/60"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8,6 12,2 16,6"/></svg></div>
-                    <div class="text-xs text-white/50 mb-1">Восход</div>
-                    <div class="text-lg font-semibold" id="sunrise">--:--</div>
+                <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
+                    <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8,6 12,2 16,6"/></svg></div>
+                    <div class="text-[0.65rem] text-white/50 mb-0.5">Восход</div>
+                    <div class="text-base font-semibold" id="sunrise">--:--</div>
                 </div>
                 <!-- Закат -->
-                <div class="bg-white/5 rounded-2xl p-4 text-center border border-white/10">
-                    <div class="flex justify-center mb-2 text-white/60"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8,6 12,10 16,6"/></svg></div>
-                    <div class="text-xs text-white/50 mb-1">Закат</div>
-                    <div class="text-lg font-semibold" id="sunset">--:--</div>
+                <div class="bg-white/5 rounded-2xl p-3 text-center border border-white/10">
+                    <div class="flex justify-center mb-1 text-white/60"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8,6 12,10 16,6"/></svg></div>
+                    <div class="text-[0.65rem] text-white/50 mb-0.5">Закат</div>
+                    <div class="text-base font-semibold" id="sunset">--:--</div>
                 </div>
             </div>
 
             <!-- Индикатор обновления -->
-            <div class="flex items-center justify-center gap-3 mt-8 text-white/50 text-sm border-t border-white/10 pt-6">
+            <div class="flex items-center justify-center gap-3 mt-4 text-white/50 text-sm border-t border-white/10 pt-4">
                 <button class="text-white/70 hover:text-white transition-colors" id="update-btn" title="Обновить">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                 </button>

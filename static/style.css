@@ -172,14 +172,27 @@ html {
     transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.6s ease, border-color 0.6s ease;
 }
 
-.weather-glass.cloud-passing {
-    transform: translateY(-6px) scale(1.01);
-    /* Зажигаем контур неоном */
-    border-color: #00ff88 !important;
-    /* Делаем многослойное свечение вокруг */
+/* === ЭФФЕКТ ОБЛАКА ЗА СТЕКЛОМ (ЖЕЛЕЗОБЕТОННЫЙ ФИКС) === */
+#clock-section, #weather-section {
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.6s ease, border-color 0.6s ease !important;
+}
+
+#clock-section.cloud-passing {
+    transform: translateY(-6px) scale(1.01) !important;
+    border-color: #00e5ff !important;
     box-shadow:
         0 30px 70px rgba(0, 0, 0, 0.4),
-        0 0 15px #00ff88,               /* Ядро свечения */
-        0 0 40px rgba(0, 255, 136, 0.3), /* Дальний ореол */
-        inset 0 0 40px rgba(0, 255, 136, 0.05); /* Легкое свечение внутри стекла */
+        0 0 15px #00e5ff,
+        0 0 40px rgba(0, 229, 255, 0.3),
+        inset 0 0 40px rgba(0, 229, 255, 0.05) !important;
+}
+
+#weather-section.cloud-passing {
+    transform: translateY(-6px) scale(1.01) !important;
+    border-color: #00ff88 !important;
+    box-shadow:
+        0 30px 70px rgba(0, 0, 0, 0.4),
+        0 0 15px #00ff88,
+        0 0 40px rgba(0, 255, 136, 0.3),
+        inset 0 0 40px rgba(0, 255, 136, 0.05) !important;
 }

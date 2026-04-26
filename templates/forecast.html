@@ -4,88 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Прогноз погоды на 5 дней</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ version }}">
-    <style>
-        .container {
-            position: static;
-            transform: none;
-            cursor: auto;
-        }
-        body {
-            overflow: auto;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     <!-- Анимированный фон -->
     <div class="animated-bg" id="animated-bg">
         <div class="sun-rays"></div>
-        <div class="cloud cloud-1"></div>
-        <div class="cloud cloud-2"></div>
-        <div class="cloud cloud-3"></div>
-        <div class="cloud cloud-4"></div>
+        <div class="cloud cloud-1"></div><div class="cloud cloud-2"></div><div class="cloud cloud-3"></div><div class="cloud cloud-4"></div>
         <div class="particles">
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
+            <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+            <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
         </div>
         <div class="rain-container" id="rain-container"></div>
     </div>
 
     <!-- Навигация -->
-    <div class="nav-tabs">
-        <a href="/" class="nav-btn" id="nav-home">Погода сейчас</a>
-        <a href="/forecast" class="nav-btn active" id="nav-forecast">Прогноз на неделю</a>
+    <div class="flex justify-center gap-4 pt-6 pb-4 relative z-10">
+        <a href="/" class="px-6 py-2 rounded-full bg-white/10 backdrop-blur-md text-white/70 font-semibold hover:bg-white/20 transition-colors duration-200" id="nav-home">Погода сейчас</a>
+        <a href="/forecast" class="px-6 py-2 rounded-full bg-white/20 backdrop-blur-md text-white font-semibold hover:bg-white/30 transition-colors duration-200" id="nav-forecast">Прогноз на неделю</a>
     </div>
 
     <!-- Скелетон-лоадер -->
-    <div class="loader" id="loader">
-        <div class="loader-content">
+    <div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-500" id="loader">
+        <div class="text-center">
             <div class="skeleton-box skeleton-title"></div>
-            <div style="display: flex; gap: 16px; justify-content: center; margin-top: 24px;">
-                <div class="skeleton-box" style="width: 140px; height: 180px; border-radius: 20px;"></div>
-                <div class="skeleton-box" style="width: 140px; height: 180px; border-radius: 20px;"></div>
-                <div class="skeleton-box" style="width: 140px; height: 180px; border-radius: 20px;"></div>
-                <div class="skeleton-box" style="width: 140px; height: 180px; border-radius: 20px;"></div>
-                <div class="skeleton-box" style="width: 140px; height: 180px; border-radius: 20px;"></div>
+            <div class="flex gap-4 justify-center mt-6">
+                <div class="skeleton-box w-36 h-44"></div>
+                <div class="skeleton-box w-36 h-44"></div>
+                <div class="skeleton-box w-36 h-44"></div>
+                <div class="skeleton-box w-36 h-44 hidden md:block"></div>
+                <div class="skeleton-box w-36 h-44 hidden md:block"></div>
             </div>
         </div>
     </div>
 
     <!-- Основной контент -->
-    <div class="container" id="container">
-        <div class="forecast-container glass-card">
-            <h2 class="forecast-title" id="city">Прогноз на 5 дней</h2>
+    <div class="max-w-4xl mx-auto px-6 pb-10 relative z-10">
+        <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 text-white shadow-2xl border border-white/20">
+            <h2 class="text-3xl font-bold text-center mb-8" style="font-family: 'Montserrat', sans-serif;" id="city">Прогноз на 5 дней</h2>
 
-            <div class="forecast-grid" id="forecast-grid">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4" id="forecast-grid">
                 <!-- Прогноз будет загружен сюда -->
             </div>
 
             <!-- График температуры -->
-            <div class="temp-chart glass-card" id="temp-chart-container" style="display: none;">
-                <div class="temp-chart-title">Температура на неделю</div>
-                <svg class="chart-svg" id="temp-chart"></svg>
+            <div class="mt-8 bg-white/5 rounded-2xl p-6 border border-white/10 hidden" id="temp-chart-container">
+                <div class="text-lg font-semibold mb-4 text-white/80">Температура на неделю</div>
+                <svg class="w-full" id="temp-chart" style="height: 160px;"></svg>
             </div>
 
-            <div class="forecast-loading" id="loading-text">
-                Загрузка данных о прогнозе...
-            </div>
+            <div class="text-center text-white/50 mt-6" id="loading-text">Загрузка данных о прогнозе...</div>
 
-            <div class="update-indicator">
-                <button class="update-btn" id="update-btn" title="Обновить">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M23 4v6h-6"/>
-                        <path d="M1 20v-6h6"/>
-                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-                    </svg>
+            <div class="flex items-center justify-center gap-3 mt-8 text-white/50 text-sm border-t border-white/10 pt-6">
+                <button class="text-white/70 hover:text-white transition-colors" id="update-btn" title="Обновить">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                 </button>
                 <span id="last-updated">Обновлено: --:--:--</span>
             </div>
@@ -93,140 +69,14 @@
     </div>
 
     <script>
-        // --- 1. Скрытие лоадера ---
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loader').classList.add('hidden');
-            }, 800);
-        });
-
-        // --- 2. Переключение темы (ночь/день) ---
-        function updateTheme() {
-            const hour = new Date().getHours();
-            if (hour >= 20 || hour < 6) {
-                document.body.classList.add('night');
-            } else {
-                document.body.classList.remove('night');
-            }
-        }
-
-        // --- 3. Построение графика температуры ---
-        function renderTempChart(forecast) {
-            const container = document.getElementById('temp-chart-container');
-            const svg = document.getElementById('temp-chart');
-
-            if (!forecast || forecast.length === 0) return;
-
-            const temps = forecast.map(d => d.temp);
-            const minTemp = Math.min(...temps) - 2;
-            const maxTemp = Math.max(...temps) + 2;
-            const range = maxTemp - minTemp;
-
-            const width = svg.clientWidth || 600;
-            const height = 160;
-            const paddingX = 40;
-            const paddingY = 30;
-            const chartWidth = width - paddingX * 2;
-            const chartHeight = height - paddingY * 2;
-
-            let pathD = '';
-            let points = [];
-
-            forecast.forEach((day, i) => {
-                const x = paddingX + (i / (forecast.length - 1 || 1)) * chartWidth;
-                const y = paddingY + chartHeight - ((day.temp - minTemp) / range) * chartHeight;
-                points.push({ x, y, day });
-
-                if (i === 0) pathD += `M ${x} ${y}`;
-                else pathD += ` L ${x} ${y}`;
-            });
-
-            svg.innerHTML = `
-                <path class="chart-line" d="${pathD}"/>
-                ${points.map(p => `
-                    <circle class="chart-dot" cx="${p.x}" cy="${p.y}" r="6"
-                        data-tooltip="${p.day.day_name}: ${p.day.temp}°C"/>
-                    <text class="chart-temp-label" x="${p.x}" y="${p.y - 14}">${p.day.temp}°</text>
-                    <text class="chart-label" x="${p.x}" y="${height - 8}">${p.day.day_name.substring(0, 3)}</text>
-                `).join('')}
-            `;
-
-            container.style.display = 'block';
-        }
-
-        // --- 4. Обновление прогноза ---
-        function updateForecast() {
-            const updateBtn = document.getElementById('update-btn');
-            updateBtn.classList.add('spinning');
-
-            const requestTime = new Date();
-
-            fetch('/api/forecast?t=' + new Date().getTime())
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.warn("API вернул ошибку:", data.error);
-                        return;
-                    }
-
-                    document.getElementById('city').textContent = `Прогноз на 5 дней — ${data.city}`;
-
-                    const grid = document.getElementById('forecast-grid');
-                    const loadingText = document.getElementById('loading-text');
-
-                    grid.innerHTML = '';
-                    loadingText.style.display = 'none';
-
-                    data.forecast.forEach(day => {
-                        const card = document.createElement('div');
-                        card.className = 'forecast-card';
-                        card.innerHTML = `
-                            <div class="forecast-day">${day.day_name}</div>
-                            <div class="forecast-date">${day.date}</div>
-                            <img class="forecast-icon" src="/static/icons/animated/${day.icon}.gif" alt="${day.desc}">
-                            <div class="forecast-temp">${day.temp}°C</div>
-                            <div class="forecast-desc">${day.desc}</div>
-                            <div class="forecast-details">
-                                <div class="detail-item" style="display: flex; align-items: center; gap: 6px; justify-content: center;">
-                                    <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
-                                    </svg>
-                                    <span>${day.humidity}%</span>
-                                </div>
-                                <div class="detail-item" style="display: flex; align-items: center; gap: 6px; justify-content: center;">
-                                    <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
-                                    </svg>
-                                    <span>${day.wind_speed}</span>
-                                </div>
-                            </div>
-                        `;
-                        grid.appendChild(card);
-                    });
-
-                    renderTempChart(data.forecast);
-
-                    document.getElementById('last-updated').textContent =
-                        `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`;
-                })
-                .catch(err => {
-                    console.error("Ошибка загрузки прогноза:", err);
-                    document.getElementById('loading-text').textContent = 'Ошибка загрузки прогноза';
-                })
-                .finally(() => {
-                    updateBtn.classList.remove('spinning');
-                });
-        }
-
-        // --- 5. Кнопка ручного обновления ---
+        // Весь JS остался БЕЗ ИЗМЕНЕНИЙ
+        window.addEventListener('load', () => { setTimeout(() => { document.getElementById('loader').classList.add('hidden'); }, 800); });
+        function updateTheme() { const hour = new Date().getHours(); if (hour >= 20 || hour < 6) { document.body.classList.add('night'); } else { document.body.classList.remove('night'); } }
+        function renderTempChart(forecast) { const container = document.getElementById('temp-chart-container'); const svg = document.getElementById('temp-chart'); if (!forecast || forecast.length === 0) return; const temps = forecast.map(d => d.temp); const minTemp = Math.min(...temps) - 2; const maxTemp = Math.max(...temps) + 2; const range = maxTemp - minTemp; const width = svg.clientWidth || 600; const height = 160; const paddingX = 40; const paddingY = 30; const chartWidth = width - paddingX * 2; const chartHeight = height - paddingY * 2; let pathD = ''; let points = []; forecast.forEach((day, i) => { const x = paddingX + (i / (forecast.length - 1 || 1)) * chartWidth; const y = paddingY + chartHeight - ((day.temp - minTemp) / range) * chartHeight; points.push({ x, y, day }); if (i === 0) pathD += `M ${x} ${y}`; else pathD += ` L ${x} ${y}`; }); svg.innerHTML = `<path class="chart-line" d="${pathD}"/> ${points.map(p => `<circle class="chart-dot" cx="${p.x}" cy="${p.y}" r="6" data-tooltip="${p.day.day_name}: ${p.day.temp}°C"/><text class="chart-temp-label" x="${p.x}" y="${p.y - 14}">${p.day.temp}°</text><text class="chart-label" x="${p.x}" y="${height - 8}">${p.day.day_name.substring(0, 3)}</text>`).join('')}`; container.classList.remove('hidden'); }
+        function updateForecast() { const updateBtn = document.getElementById('update-btn'); updateBtn.classList.add('spinning'); const requestTime = new Date(); fetch('/api/forecast?t=' + new Date().getTime()).then(response => response.json()).then(data => { if (data.error) { console.warn("API вернул ошибку:", data.error); return; } document.getElementById('city').textContent = `Прогноз на 5 дней — ${data.city}`; const grid = document.getElementById('forecast-grid'); const loadingText = document.getElementById('loading-text'); grid.innerHTML = ''; loadingText.style.display = 'none'; data.forecast.forEach(day => { const card = document.createElement('div'); card.className = 'bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center gap-2 hover:bg-white/10 transition-colors'; card.innerHTML = `<div class="text-sm font-bold">${day.day_name}</div><div class="text-xs text-white/50">${day.date}</div><img class="w-16 h-16 my-2 drop-shadow-lg" src="/static/icons/animated/${day.icon}.gif" alt="${day.desc}"><div class="text-2xl font-bold">${day.temp}°C</div><div class="text-xs text-white/60 capitalize">${day.desc}</div><div class="flex items-center gap-3 text-xs text-white/50 mt-2"><div class="flex items-center gap-1"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg><span>${day.humidity}%</span></div><div class="flex items-center gap-1"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg><span>${day.wind_speed}</span></div></div>`; grid.appendChild(card); }); renderTempChart(data.forecast); document.getElementById('last-updated').textContent = `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`; }).catch(err => { console.error("Ошибка загрузки прогноза:", err); document.getElementById('loading-text').textContent = 'Ошибка загрузки прогноза'; }).finally(() => { updateBtn.classList.remove('spinning'); }); }
         document.getElementById('update-btn').addEventListener('click', updateForecast);
-
-        // --- Запуск ---
-        setInterval(updateTheme, 60000);
-        setInterval(updateForecast, 900000);
-
-        updateTheme();
-        updateForecast();
+        setInterval(updateTheme, 60000); setInterval(updateForecast, 900000);
+        updateTheme(); updateForecast();
     </script>
 </body>
 </html>

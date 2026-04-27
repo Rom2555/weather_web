@@ -1,87 +1,205 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Прогноз погоды на 5 дней</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <!-- Анимированный фон -->
-    <div class="animated-bg" id="animated-bg">
-        <div class="sun-rays"></div>
-        <div class="cloud cloud-1"></div><div class="cloud cloud-2"></div><div class="cloud cloud-3"></div><div class="cloud cloud-4"></div>
-        <div class="particles">
-            <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-            <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
-        </div>
-        <div class="rain-container" id="rain-container"></div>
-    </div>
-    
-    <!-- Навигация -->
-    <div class="flex justify-center gap-4 pt-6 pb-4 relative z-10">
-        <a href="/" class="px-6 py-2 rounded-full bg-white/10 backdrop-blur-md text-white/70 font-semibold hover:bg-white/20 transition-colors duration-200" id="nav-home">Погода сейчас</a>
-        <a href="/forecast" class="px-6 py-2 rounded-full bg-white/20 backdrop-blur-md text-white font-semibold hover:bg-white/30 transition-colors duration-200" id="nav-forecast">Прогноз на неделю</a>
-    </div>
-    
-    <!-- Скелетон-лоадер -->
-    <div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-500" id="loader">
-        <div class="text-center">
-            <div class="skeleton-box skeleton-title"></div>
-            <div class="flex gap-4 justify-center mt-6">
-                <div class="skeleton-box w-36 h-44"></div>
-                <div class="skeleton-box w-36 h-44"></div>
-                <div class="skeleton-box w-36 h-44"></div>
-                <div class="skeleton-box w-36 h-44 hidden md:block"></div>
-                <div class="skeleton-box w-36 h-44 hidden md:block"></div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Основной контент -->
-    <div class="max-w-4xl mx-auto px-6 pb-4 relative z-10">
-        <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-5 text-white shadow-2xl border border-white/20">
-            <h2 class="text-2xl font-bold text-center mb-4" style="font-family: 'Montserrat', sans-serif;" id="city">Прогноз на 5 дней</h2>
+html {
+    font-size: 20px;
+}
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3" id="forecast-grid"></div>
+/* --- БАЗОВЫЙ ФОН (Защита от белого экрана) --- */
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(180deg, #591e78 0%, #ac9efb 100%);
+    color: white;
+    min-height: 100vh;
+}
+body.night {
+    background: linear-gradient(180deg, #0a0a1a 0%, #1a1a3a 100%);
+}
 
-            <!-- График температуры -->
-            <div class="mt-4 bg-white/5 rounded-2xl p-4 border border-white/10 hidden" id="temp-chart-container">
-                <div class="text-base font-semibold mb-2 text-white/80">Температура на неделю</div>
-                <svg class="w-full" id="temp-chart" style="height: 140px;"></svg>
-            </div>
+/* === АНИМИРОВАННЫЙ ФОН === */
+.animated-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    background: linear-gradient(180deg, #591e78 0%, #ac9efb 100%);
+    transition: background 1.5s ease;
+}
 
-            <div class="text-center text-white/50 text-xs mt-2" id="loading-text">Загрузка данных о прогнозе...</div>
+.cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.4;
+    filter: blur(2px);
+    animation: float-cloud linear infinite;
+}
 
-            <div class="flex items-center justify-center gap-3 mt-4 text-white/50 text-sm border-t border-white/10 pt-4">
-                <button class="text-white/70 hover:text-white transition-colors" id="update-btn" title="Обновить">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                </button>
-                <span id="last-updated">Обновлено: --:--:--</span>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        window.addEventListener('load', () => { setTimeout(() => { document.getElementById('loader').classList.add('hidden'); }, 800); });
-        function updateTheme() { const hour = new Date().getHours(); if (hour >= 20 || hour < 6) { document.body.classList.add('night'); } else { document.body.classList.remove('night'); } }
-        
-        function getWeatherEmoji(icon) {
-            const map = { '01d': '☀️', '01n': '🌙', '02d': '⛅', '02n': '☁️', '03d': '☁️', '03n': '☁️', '04d': '☁️', '04n': '☁️', '09d': '🌧️', '09n': '🌧️', '10d': '🌦️', '10n': '🌧️', '11d': '⛈️', '11n': '⛈️', '13d': '❄️', '13n': '❄️', '50d': '🌫️', '50n': '🌫️' };
-            return map[icon] || '🌤️';
-        }
+.cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
 
-        function renderTempChart(forecast) { const container = document.getElementById('temp-chart-container'); const svg = document.getElementById('temp-chart'); if (!forecast || forecast.length === 0) return; const temps = forecast.map(d => d.temp); const minTemp = Math.min(...temps) - 2; const maxTemp = Math.max(...temps) + 2; const range = maxTemp - minTemp; const width = svg.clientWidth || 600; const height = 140; const paddingX = 40; const paddingY = 30; const chartWidth = width - paddingX * 2; const chartHeight = height - paddingY * 2; let pathD = ''; let points = []; forecast.forEach((day, i) => { const x = paddingX + (i / (forecast.length - 1 || 1)) * chartWidth; const y = paddingY + chartHeight - ((day.temp - minTemp) / range) * chartHeight; points.push({ x, y, day }); if (i === 0) pathD += `M ${x} ${y}`; else pathD += ` L ${x} ${y}`; }); svg.innerHTML = `<path class="chart-line" d="${pathD}"/> ${points.map(p => `<circle class="chart-dot" cx="${p.x}" cy="${p.y}" r="6" data-tooltip="${p.day.day_name}: ${p.day.temp}°C"/><text class="chart-temp-label" x="${p.x}" y="${p.y - 14}">${p.day.temp}°</text><text class="chart-label" x="${p.x}" y="${height - 8}">${p.day.day_name.substring(0, 3)}</text>`).join('')}`; container.classList.remove('hidden'); }
-        
-        function updateForecast() { const updateBtn = document.getElementById('update-btn'); updateBtn.classList.add('spinning'); const requestTime = new Date(); fetch('/api/forecast?t=' + new Date().getTime()).then(response => response.json()).then(data => { if (data.error) { console.warn("API вернул ошибку:", data.error); return; } document.getElementById('city').textContent = `Прогноз на 5 дней — ${data.city}`; const grid = document.getElementById('forecast-grid'); const loadingText = document.getElementById('loading-text'); grid.innerHTML = ''; loadingText.style.display = 'none'; data.forecast.forEach(day => { const card = document.createElement('div'); 
-            card.className = 'bg-white/5 border border-white/10 rounded-2xl p-3 flex flex-col items-center gap-1 hover:bg-white/10 transition-colors'; 
-            card.innerHTML = `<div class="text-sm font-bold">${day.day_name}</div><div class="text-[0.65rem] text-white/50">${day.date}</div><div class="text-4xl my-2 drop-shadow-md">${getWeatherEmoji(day.icon)}</div><div class="text-xl font-bold">${day.temp}°C</div><div class="text-[0.65rem] text-white/60 capitalize">${day.desc}</div><div class="flex items-center gap-2 text-[0.65rem] text-white/50 mt-1"><div class="flex items-center gap-1"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg><span>${day.humidity}%</span></div><div class="flex items-center gap-1"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg><span>${day.wind_speed}</span></div></div>`; grid.appendChild(card); }); renderTempChart(data.forecast); document.getElementById('last-updated').textContent = `Обновлено: ${requestTime.toLocaleTimeString('ru-RU', { hour12: false })}`; }).catch(err => { console.error("Ошибка загрузки прогноза:", err); document.getElementById('loading-text').textContent = 'Ошибка загрузки прогноза'; }).finally(() => { updateBtn.classList.remove('spinning'); }); }
-        
-        document.getElementById('update-btn').addEventListener('click', updateForecast);
-        setInterval(updateTheme, 60000); setInterval(updateForecast, 900000);
-        updateTheme(); updateForecast();
-    </script>
-</body>
-</html>
+.cloud-1 { width: 200px; height: 60px; top: 10%; animation-duration: 45s; }
+.cloud-1::before { width: 100px; height: 80px; top: -40px; left: 30px; }
+.cloud-1::after { width: 80px; height: 60px; top: -25px; left: 90px; }
+
+.cloud-2 { width: 150px; height: 45px; top: 25%; animation-duration: 60s; animation-delay: -20s; opacity: 0.3; }
+.cloud-2::before { width: 70px; height: 55px; top: -30px; left: 20px; }
+.cloud-2::after { width: 60px; height: 45px; top: -18px; left: 70px; }
+
+.cloud-3 { width: 180px; height: 50px; top: 50%; animation-duration: 50s; animation-delay: -35s; opacity: 0.35; }
+.cloud-3::before { width: 90px; height: 70px; top: -35px; left: 25px; }
+.cloud-3::after { width: 70px; height: 55px; top: -22px; left: 85px; }
+
+.cloud-4 { width: 120px; height: 40px; top: 75%; animation-duration: 55s; animation-delay: -10s; opacity: 0.25; }
+.cloud-4::before { width: 60px; height: 50px; top: -28px; left: 15px; }
+.cloud-4::after { width: 50px; height: 40px; top: -16px; left: 55px; }
+
+@keyframes float-cloud {
+    0% { transform: translateX(-250px); }
+    100% { transform: translateX(calc(100vw + 250px)); }
+}
+
+.particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0;
+    animation: twinkle 3s ease-in-out infinite;
+}
+
+.particle:nth-child(1) { top: 15%; left: 20%; animation-delay: 0s; }
+.particle:nth-child(2) { top: 25%; left: 45%; animation-delay: 0.5s; }
+.particle:nth-child(3) { top: 10%; left: 70%; animation-delay: 1s; }
+.particle:nth-child(4) { top: 35%; left: 85%; animation-delay: 1.5s; }
+.particle:nth-child(5) { top: 20%; left: 30%; animation-delay: 2s; }
+.particle:nth-child(6) { top: 45%; left: 15%; animation-delay: 2.5s; }
+.particle:nth-child(7) { top: 55%; left: 60%; animation-delay: 0.3s; }
+.particle:nth-child(8) { top: 40%; left: 92%; animation-delay: 1.2s; }
+.particle:nth-child(9) { top: 8%; left: 55%; animation-delay: 1.8s; }
+.particle:nth-child(10) { top: 60%; left: 40%; animation-delay: 2.2s; }
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 0.8; transform: scale(1.2); }
+}
+
+.sun-rays {
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,220,100,0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulse-glow 4s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+/* === НОЧНОЙ РЕЖИМ ФОНА === */
+.night .animated-bg { background: linear-gradient(180deg, #0a0a1a 0%, #1a1a3a 100%); }
+.night .cloud { background: rgba(200, 200, 220, 0.6); }
+.night .cloud::before, .night .cloud::after { background: rgba(200, 200, 220, 0.6); }
+.night .sun-rays { display: none; }
+.night .particle { background: rgba(200, 200, 255, 0.8); }
+
+/* === ДОЖДЬ === */
+.rain-container {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.rain-container.active { opacity: 0.5; }
+
+.raindrop {
+    position: absolute;
+    top: -10px;
+    width: 2px;
+    height: 20px;
+    background: linear-gradient(transparent, rgba(255,255,255,0.6));
+    animation: rain-fall linear infinite;
+}
+
+@keyframes rain-fall {
+    0% { transform: translateY(-100vh); }
+    100% { transform: translateY(100vh); }
+}
+
+/* === СОСТОЯНИЯ ДЛЯ JS === */
+.loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.skeleton-box {
+    background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.update-btn.spinning svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* === СТИЛИ ГРАФИКА === */
+.chart-line { fill: none; stroke: rgba(255,255,255,0.6); stroke-width: 2; }
+.chart-dot { fill: white; stroke: rgba(255,255,255,0.8); stroke-width: 2; cursor: pointer; }
+.chart-temp-label { fill: white; font-size: 12px; text-anchor: middle; font-weight: bold; }
+.chart-label { fill: rgba(255,255,255,0.6); font-size: 11px; text-anchor: middle; }
+
+/* === НЕОНОВАЯ АНИМАЦИЯ ОБЛАКОВ === */
+#clock-section, #weather-section {
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.6s ease, border-color 0.6s ease !important;
+}
+
+#clock-section.cloud-passing {
+    transform: translateY(-6px) scale(1.01) !important;
+    border-color: #00e5ff !important;
+    box-shadow: 
+        0 30px 70px rgba(0, 0, 0, 0.4),
+        0 0 15px #00e5ff,
+        0 0 40px rgba(0, 229, 255, 0.3),
+        inset 0 0 40px rgba(0, 229, 255, 0.05) !important;
+}
+
+#weather-section.cloud-passing {
+    transform: translateY(-6px) scale(1.01) !important;
+    border-color: #00ff88 !important;
+    box-shadow: 
+        0 30px 70px rgba(0, 0, 0, 0.4),
+        0 0 15px #00ff88,
+        0 0 40px rgba(0, 255, 136, 0.3),
+        inset 0 0 40px rgba(0, 255, 136, 0.05) !important;
+}

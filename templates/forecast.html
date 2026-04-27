@@ -6,24 +6,9 @@
     <title>Прогноз погоды на 5 дней</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-        <!-- Защита: базовый фон, чтобы не было белого экрана если CSS не прогрузится -->
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(180deg, #591e78 0%, #ac9efb 100%);
-            color: white;
-            min-height: 100vh;
-        }
-        body.night { background: linear-gradient(180deg, #0a0a1a 0%, #1a1a3a 100%); }
-    </style>
-
-
-    <!-- Остальные стили (анимации облаков, дождь, неон) -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <!-- Анимированный фон -->
     <div class="animated-bg" id="animated-bg">
         <div class="sun-rays"></div>
         <div class="cloud cloud-1"></div><div class="cloud cloud-2"></div><div class="cloud cloud-3"></div><div class="cloud cloud-4"></div>
@@ -34,13 +19,11 @@
         <div class="rain-container" id="rain-container"></div>
     </div>
 
-    <!-- Навигация -->
     <div class="flex justify-center gap-4 pt-6 pb-4 relative z-10">
         <a href="/" class="px-6 py-2 rounded-full bg-white/10 backdrop-blur-md text-white/70 font-semibold hover:bg-white/20 transition-colors duration-200" id="nav-home">Погода сейчас</a>
         <a href="/forecast" class="px-6 py-2 rounded-full bg-white/20 backdrop-blur-md text-white font-semibold hover:bg-white/30 transition-colors duration-200" id="nav-forecast">Прогноз на неделю</a>
     </div>
 
-    <!-- Скелетон-лоадер -->
     <div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-500" id="loader">
         <div class="text-center">
             <div class="skeleton-box skeleton-title"></div>
@@ -54,21 +37,15 @@
         </div>
     </div>
 
-    <!-- Основной контент -->
     <div class="max-w-4xl mx-auto px-6 pb-4 relative z-10">
         <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-5 text-white shadow-2xl border border-white/20">
             <h2 class="text-2xl font-bold text-center mb-4" style="font-family: 'Montserrat', sans-serif;" id="city">Прогноз на 5 дней</h2>
-
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3" id="forecast-grid"></div>
-
-            <!-- График температуры -->
             <div class="mt-4 bg-white/5 rounded-2xl p-4 border border-white/10 hidden" id="temp-chart-container">
                 <div class="text-base font-semibold mb-2 text-white/80">Температура на неделю</div>
                 <svg class="w-full" id="temp-chart" style="height: 140px;"></svg>
             </div>
-
             <div class="text-center text-white/50 text-xs mt-2" id="loading-text">Загрузка данных о прогнозе...</div>
-
             <div class="flex items-center justify-center gap-3 mt-4 text-white/50 text-sm border-t border-white/10 pt-4">
                 <button class="text-white/70 hover:text-white transition-colors" id="update-btn" title="Обновить">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -81,11 +58,7 @@
     <script>
         window.addEventListener('load', () => { setTimeout(() => { document.getElementById('loader').classList.add('hidden'); }, 800); });
         function updateTheme() { const hour = new Date().getHours(); if (hour >= 20 || hour < 6) { document.body.classList.add('night'); } else { document.body.classList.remove('night'); } }
-
-        function getWeatherEmoji(icon) {
-            const map = { '01d': '☀️', '01n': '🌙', '02d': '⛅', '02n': '☁️', '03d': '☁️', '03n': '☁️', '04d': '☁️', '04n': '☁️', '09d': '🌧️', '09n': '🌧️', '10d': '🌦️', '10n': '🌧️', '11d': '⛈️', '11n': '⛈️', '13d': '❄️', '13n': '❄️', '50d': '🌫️', '50n': '🌫️' };
-            return map[icon] || '🌤️';
-        }
+        function getWeatherEmoji(icon) { const map = { '01d': '☀️', '01n': '🌙', '02d': '⛅', '02n': '☁️', '03d': '☁️', '03n': '☁️', '04d': '☁️', '04n': '☁️', '09d': '🌧️', '09n': '🌧️', '10d': '🌦️', '10n': '🌧️', '11d': '⛈️', '11n': '⛈️', '13d': '❄️', '13n': '❄️', '50d': '🌫️', '50n': '🌫️' }; return map[icon] || '🌤️'; }
 
         function renderTempChart(forecast) { const container = document.getElementById('temp-chart-container'); const svg = document.getElementById('temp-chart'); if (!forecast || forecast.length === 0) return; const temps = forecast.map(d => d.temp); const minTemp = Math.min(...temps) - 2; const maxTemp = Math.max(...temps) + 2; const range = maxTemp - minTemp; const width = svg.clientWidth || 600; const height = 140; const paddingX = 40; const paddingY = 30; const chartWidth = width - paddingX * 2; const chartHeight = height - paddingY * 2; let pathD = ''; let points = []; forecast.forEach((day, i) => { const x = paddingX + (i / (forecast.length - 1 || 1)) * chartWidth; const y = paddingY + chartHeight - ((day.temp - minTemp) / range) * chartHeight; points.push({ x, y, day }); if (i === 0) pathD += `M ${x} ${y}`; else pathD += ` L ${x} ${y}`; }); svg.innerHTML = `<path class="chart-line" d="${pathD}"/> ${points.map(p => `<circle class="chart-dot" cx="${p.x}" cy="${p.y}" r="6" data-tooltip="${p.day.day_name}: ${p.day.temp}°C"/><text class="chart-temp-label" x="${p.x}" y="${p.y - 14}">${p.day.temp}°</text><text class="chart-label" x="${p.x}" y="${height - 8}">${p.day.day_name.substring(0, 3)}</text>`).join('')}`; container.classList.remove('hidden'); }
 

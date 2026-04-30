@@ -1,7 +1,7 @@
 function getWeatherIcon(icon) {
     // Базовые фигуры для облаков (безопасная геометрия)
     const cloud = '<g><ellipse cx="24" cy="36" rx="14" ry="10" fill="white" opacity="0.9"/><ellipse cx="40" cy="36" rx="16" ry="12" fill="white"/><rect x="10" y="36" width="44" height="14" rx="7" fill="white"/></g>';
-    const cloudDark = '<g opacity="0.5"><ellipse cx="24" cy="38" rx="14" ry="10" fill="white"/><ellipse cx="40" cy="38" rx="16" ry="12" fill="white"/><rect x="10" y="38" width="44" height="14" rx="7" fill="white"/></g>';
+    const cloudDark = '<g opacity="0.3"><ellipse cx="24" cy="38" rx="14" ry="10" fill="white"/><ellipse cx="40" cy="38" rx="16" ry="12" fill="white"/><rect x="10" y="38" width="44" height="14" rx="7" fill="white"/></g>';
 
     // Капли дождя (простые вытянутые круги)
     const rain = '<g fill="white" opacity="0.9"><ellipse cx="20" cy="56" rx="2" ry="3.5"/><ellipse cx="32" cy="58" rx="2" ry="3.5"/><ellipse cx="44" cy="56" rx="2" ry="3.5"/></g>';

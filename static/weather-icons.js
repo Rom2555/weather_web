@@ -33,7 +33,7 @@ function getWeatherIcon(icon) {
         '10n': `<svg viewBox="0 0 64 64" fill="none" opacity="0.7">${cloudDark}${rain}</svg>`,
 
         '11d': `<svg viewBox="0 0 64 64" fill="none" opacity="0.9">${cloudDark}${cloud}${bolt}</svg>`,
-        '11n': `<svg viewBox="0 0 64 64" fill="none" opacity="0.3">${cloudDark}${cloud}${bolt}</svg>`,
+        '11n': `<svg viewBox="0 0 64 64" fill="none" opacity="0.7">${cloudDark}${cloud}${bolt}</svg>`,
 
         '13d': `<svg viewBox="0 0 64 64" fill="none">${cloud}${snow}</svg>`,
         '13n': `<svg viewBox="0 0 64 64" fill="none" opacity="0.7">${cloudDark}${snow}</svg>`,

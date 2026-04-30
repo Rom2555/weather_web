@@ -98,11 +98,11 @@ body.night {
 
 .sun-rays {
     position: absolute;
-    top: -50px;
-    right: -50px;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(255, 220, 100, 0.66) 0%, transparent 70%);
+    top: -150px;
+    right: -150px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255, 220, 100, 0.84) 0%, transparent 70%);
     border-radius: 50%;
     animation: pulse-glow 4s ease-in-out infinite;
 }
